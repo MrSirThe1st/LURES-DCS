@@ -1,0 +1,58 @@
+@import 'tailwindcss';
+@import '@lures-dcs/design-tokens/css';
+
+/*
+  Map semantic tokens into Tailwind v4 theme.
+  Values come from packages/design-tokens — do not invent a second palette here.
+*/
+@theme {
+  --color-background: var(--lures-color-background);
+  --color-surface: var(--lures-color-surface);
+  --color-border: var(--lures-color-border);
+  --color-primary: var(--lures-color-primary);
+  --color-primary-foreground: var(--lures-color-primary-foreground);
+  --color-destructive: var(--lures-color-destructive);
+  --color-destructive-foreground: var(--lures-color-destructive-foreground);
+  --color-success: var(--lures-color-success);
+  --color-warning: var(--lures-color-warning);
+  --color-focus: var(--lures-color-focus);
+  --color-text-primary: var(--lures-color-text-primary);
+  --color-text-secondary: var(--lures-color-text-secondary);
+
+  --spacing-xs: var(--lures-space-xs);
+  --spacing-sm: var(--lures-space-sm);
+  --spacing-md: var(--lures-space-md);
+  --spacing-lg: var(--lures-space-lg);
+  --spacing-xl: var(--lures-space-xl);
+
+  --radius-sm: var(--lures-radius-sm);
+  --radius-md: var(--lures-radius-md);
+  --radius-lg: var(--lures-radius-lg);
+
+  --font-sans: var(--lures-font-sans);
+  --font-mono: var(--lures-font-mono);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--lures-color-background);
+  color: var(--lures-color-text-primary);
+  font-family: var(--lures-font-sans);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--lures-color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
