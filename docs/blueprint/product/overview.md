@@ -2,7 +2,7 @@
 
 ## What it is
 
-Centralized digital truck loading and dispatch control so operational loading data — not paper — is the source of truth for mineral/concentrate truck loading.
+Centralized digital truck loading and dispatch control so operational loading data — not paper — is the source of truth for mineral/concentrate truck loading in the DRC.
 
 ## Problem
 
