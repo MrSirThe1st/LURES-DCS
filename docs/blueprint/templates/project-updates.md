@@ -30,3 +30,10 @@ Format:
 - Description: Established monorepo technical foundation (pnpm/Turborepo, web/mobile shells, shared packages, design tokens, Supabase migration stub)
 - Impact: `apps/web`, `apps/mobile`, `packages/*`, `supabase/`, root tooling, ADR-001, design-dna/token hierarchy, setup auth/database docs
 - Tests: passed (`pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm --filter @lures-dcs/web build`)
+
+## 2026-09-03
+
+- Type: Docs
+- Description: Confirmed market and languages — DRC only; Mandarin, English, and French
+- Impact: Updated overview, brand, glossary, agent rules, roles/flows, feature open questions, ADR-001, PROJECT_KNOWLEDGE, README; web layout note for future i18n
+- Tests: N/A

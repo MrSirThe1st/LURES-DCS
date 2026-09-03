@@ -11,9 +11,12 @@ Concise operating manual for AI coding agents on this repository.
 | Management web app (`apps/web`) | Management | Daily dashboard, import/schedule, monitor trucks/bags, audit, export/print |
 | Mobile loading app (`apps/mobile`) | Loading / operational staff | Find today’s trucks, verify bags, record authorized changes, complete trucks |
 
+**Market:** DRC only.  
+**Languages:** Mandarin, English, and French (all required).
+
 **Core entities (conceptual):** User, Organization, Loading List, Truck, Bag, Driver, Transporter, Loading Operation, Audit Event, Attachment/Document.
 
-Do **not** work outside this product scope. Do not invent entities, roles, workflows, or permissions that are not documented in `docs/` or `PROJECT_KNOWLEDGE.md`.
+Do **not** work outside this product scope. Do not invent entities, roles, workflows, or permissions that are not documented in `docs/` or `PROJECT_KNOWLEDGE.md`. Do not drop or ignore a required language when implementing user-facing copy.
 
 ## 2. Before every task
 

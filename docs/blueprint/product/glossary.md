@@ -44,6 +44,9 @@ Do not invent additional lifecycle states.
 - Prefer **Bag** for each weighed/sealed unit
 - Prefer **Audit Event** for history entries
 - Total truck weight should be calculated from bag weights rather than trusted alone as a manual-only total
+- Product languages: **Mandarin**, **English**, **French** — keep glossary meanings aligned across all three; do not invent translations here
+
+TODO: add approved Mandarin / English / French term equivalents when confirmed
 
 ## Prohibited ambiguous synonyms
 

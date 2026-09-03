@@ -51,3 +51,4 @@ Server-first App Router loading. See [../../ai/data-fetching.md](../../ai/data-f
 - Import spreadsheet mapping
 - Permission matrix for edit vs view-only management users
 - PDF layout requirements
+- Default language and language-switch UX for Mandarin / English / French

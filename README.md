@@ -28,6 +28,11 @@ pnpm build
 
 Copy `.env.example` to local env files and fill placeholders. Never commit secrets.
 
+## Market and languages
+
+- **Location:** DRC only
+- **Languages:** Mandarin, English, and French
+
 ## Design tokens
 
 `docs/blueprint/product/design-dna.md` → `packages/design-tokens` → web Tailwind / mobile theme.

@@ -21,8 +21,8 @@ Generated PDF/paper documents are outputs of structured data, not the primary st
 
 | Parameter | Value |
 |-----------|-------|
-| Market / region | RDC (operations reference: Luilu); transit examples may include regional borders |
-| Primary locale | French for operational terminology; product UI locale TBD |
+| Market / region | **DRC only** — the system is for use in the Democratic Republic of the Congo |
+| Languages | **Mandarin**, **English**, and **French** (all three required) |
 | Currency | TODO: define when known |
 
 ## Surfaces
@@ -66,10 +66,11 @@ Exact permission matrix: **TODO: define access scope**
 ### TBD
 
 - Exact import spreadsheet mapping
-- Final field list and French labels
+- Final field list and approved copy in Mandarin, English, and French
 - Role/permission matrix
 - Production brand palette and typography
 - PDF layout fidelity to paper forms
+- Default UI language and language-switch behavior
 
 ## Success metrics
 

@@ -6,7 +6,7 @@
 
 ## Market
 
-RDC operational context (internal company system). Not a public consumer brand.
+**DRC only** — internal company system for use in the Democratic Republic of the Congo. Not a public consumer brand.
 
 ## Positioning
 
@@ -24,13 +24,23 @@ Interim guidance (product docs only):
 - Prefer plain language over marketing copy
 - Prefer status and facts over slogans
 
-## Plain-language rules (French operational terminology)
+## Languages
 
-- Support French operational terms used by the company (e.g. cargo descriptions, site names)
-- Do not invent French UI copy until labels are confirmed
-- Keep domain terms consistent with [glossary.md](./glossary.md)
+The product must support **three languages**:
 
-TODO: finalize UI language (French-only, bilingual, or English UI + French domain terms)
+1. Mandarin
+2. English
+3. French
+
+## Plain-language rules
+
+- Provide UI and operational copy in Mandarin, English, and French
+- Do not invent translated labels until copy is confirmed per language
+- Keep domain terms consistent with [glossary.md](./glossary.md) across languages
+- Prefer plain language over marketing copy in every locale
+
+TODO: define default language, language-switch UX, and translation workflow  
+TODO: confirm approved terminology lists for Mandarin, English, and French
 
 ## Naming conventions
 

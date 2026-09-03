@@ -83,3 +83,5 @@ Complete truck
 | Realtime | Management and mobile share one DB; updates visible without file exchange |
 | Offline | Important future consideration; not V1 requirement |
 | Import | Excel/CSV validation before write; format TBD |
+| Market | DRC only |
+| Languages | Mandarin, English, and French — TODO: default language and switch UX |

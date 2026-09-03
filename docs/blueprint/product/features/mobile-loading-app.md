@@ -53,3 +53,4 @@ Screen → UI/state → query/mutation layer → API/backend boundary. No privil
 - Which bag fields operators may edit
 - Hold/cancel permissions for mobile users
 - Offline conflict strategy (future)
+- Default language and language-switch UX for Mandarin / English / French
