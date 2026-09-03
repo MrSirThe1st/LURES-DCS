@@ -1,0 +1,11 @@
+{
+  "extends": "../../packages/config/tsconfig/vite.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "src/vite-env.d.ts"],
+  "exclude": ["node_modules", "dist", "src-tauri"]
+}

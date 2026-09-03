@@ -61,52 +61,93 @@ The system should become the **operational source of truth** for truck loading.
 
 The system must **not** merely be a digital version of the paper form. The underlying data must represent the **actual loading operation**. Paper/PDF documents should eventually be treated as **generated representations** of that data — outputs/reports, not the primary data store.
 
+The existing paper loading/packing sheet is a **reference for the business process**. Do not make the paper document the database model.
+
 ---
 
 ## 2. Core product concept
 
-The system has **two primary interfaces** connected to the same centralized backend:
+The system has **two dedicated applications** connected to the **same centralized backend**.
 
-| Interface | Audience |
-|-----------|----------|
-| **A. Management application** | Supervisors, managers, authorized office/administrative personnel |
-| **B. Mobile loading application** | Personnel physically involved in checking/loading trucks |
+| Application | Audience | Purpose |
+|-------------|----------|---------|
+| **A. Dedicated desktop application** | Company management / authorized office staff | Manage and monitor the truck loading operation |
+| **B. Dedicated mobile application** | Personnel physically checking/loading trucks | Digitize the manual paper-based loading/checking process |
 
 Both applications operate on the **same centralized records**.
 
 ### Conceptual architecture
 
 ```
-Management Web/Desktop Interface
-                |
-                |
-            Supabase
-      PostgreSQL + Auth
-      Realtime + Storage
-                |
-                |
-        Mobile Loading App
+        DESKTOP APPLICATION
+        Management
+              │
+              │
+              ▼
+           SUPABASE
+      PostgreSQL / Auth
+      Realtime / Storage
+              ▲
+              │
+              │
+        MOBILE APPLICATION
+        Loading Operations
 ```
 
-- The mobile application can modify operational records; authorized management users see those changes in **real time**.
-- Management can also make authorized changes, which become visible to the mobile team.
-- There must **never** be separate independent copies of the truck loading data.
-- The **centralized database is the source of truth**.
+- The **database is the single source of truth**.
+- There must **never** be separate copies of truck/loading data maintained independently by the desktop and mobile applications.
+- If a loading operator changes a seal number, weight, bag status, or similar field, the change is written to the central backend and management should see it **in real time**.
+- Authorized management changes should be reflected in the mobile application.
+- Do **not** describe changes as files being manually uploaded between applications.
+
+### What this product is not
+
+Do **not** describe or implement the management client as:
+
+- a web application
+- a web dashboard
+- a browser application
+- a desktop browser interface
+- a Next.js management application
+- management accessed from a browser
+
+The management client is a **dedicated desktop application**. Do not add a web application unless stakeholders explicitly decide to do so later.
 
 ---
 
-## 3. Management application
+## 3. Desktop application — management
 
-Intended primarily for supervisors, managers, and authorized office/administrative personnel.
+A dedicated desktop application used by company management and authorized office staff.
 
-Provides a dashboard showing the current loading situation.
+Its purpose is to manage and monitor the truck loading operation.
+
+Management should eventually be able to:
+
+- Log in
+- Upload/import the daily list of trucks to be loaded
+- View the day's loading schedule
+- View all trucks and their current status
+- Open individual truck loading records
+- Review bags, weights, seals and other loading information
+- Make authorized modifications
+- See modifications made by loading personnel in real time
+- Monitor which trucks are waiting, loading, completed, on hold or cancelled
+- Review the audit/history of changes
+- Export/print final loading records
+- Manage users and permissions where applicable
+
+### Agreed desktop technology
+
+**Tauri 2** is the agreed desktop shell. The management UI runs inside the packaged desktop application (not in a browser).
+
+UI toolkit, state-management library, and deployment/CI details beyond Tauri 2 + the shared Supabase backend are **not fully locked** and should not be invented.
 
 ### Main management workflow
 
 ```
 Login
   ↓
-Daily Loading Dashboard
+Daily loading overview
   ↓
 Import/create daily loading schedule
   ↓
@@ -146,9 +187,9 @@ Management sees changes in real time
 
 ---
 
-## 4. Management dashboard
+## 4. Management operational overview
 
-The management dashboard should provide a clear **operational overview**.
+The desktop application should provide a clear **operational overview** of the day's loading work. This is an in-app view for office staff, not a browser dashboard.
 
 ### Example overview (illustrative only — exact UI not defined)
 
@@ -164,7 +205,7 @@ T683ERQ     21        31,870 kg    Waiting
 ...
 ```
 
-The dashboard should prioritize **operational visibility** rather than decorative analytics.
+The overview should prioritize **operational visibility** rather than decorative analytics.
 
 ### Questions management must be able to answer quickly
 
@@ -261,9 +302,26 @@ The system should **calculate the truck's total weight from its individual bag w
 
 ---
 
-## 7. Mobile loading application
+## 7. Mobile application — loading operations
 
-Used by personnel physically involved in checking/loading trucks.
+A dedicated mobile application used by the personnel physically checking/loading trucks.
+
+Its purpose is to digitize the manual paper-based loading/checking process.
+
+The mobile application should eventually allow authorized personnel to:
+
+- Log in
+- View the trucks scheduled for loading
+- Find/select the correct truck
+- View the truck's loading record
+- View individual bags
+- Verify bag information
+- Verify/record net weights
+- Verify/record seal numbers
+- Make authorized corrections
+- Provide a reason when required for a modification
+- Complete the truck loading process
+- Synchronize all changes with management in real time
 
 Primary workflow must be **simple and optimized for fast operational use**.
 
@@ -286,6 +344,8 @@ Complete truck
 ```
 
 A mobile operator must be able to **quickly find the correct truck**.
+
+The current mobile app in this repository uses **Expo / React Native**. That is the existing implementation starting point. Do not treat Expo as the only possible long-term mobile choice unless stakeholders confirm it; do not switch mobile frameworks without an explicit decision.
 
 ### Future identification (not V1 requirement)
 
@@ -372,6 +432,8 @@ The system should be able to show:
 
 An audit trail is a **fundamental requirement**, not an optional feature.
 
+The company needs to know what happened during the loading operation.
+
 ### Example chronological history (illustrative)
 
 ```
@@ -382,6 +444,20 @@ An audit trail is a **fundamental requirement**, not an optional feature.
 10:48 — Truck marked Loading
 11:17 — Truck marked Completed
 11:18 — Final loading document generated
+```
+
+Example of a recorded modification:
+
+```
+10:41
+Weight changed:
+1742 kg → 1740 kg
+
+Changed by:
+Jean
+
+Reason:
+Correction after physical verification
 ```
 
 This enables the company to **reconstruct what happened** during a loading operation.
@@ -430,7 +506,7 @@ Status transitions must be recorded in the **audit history**.
 
 ## 12. Real-time synchronization
 
-The system must support real-time visibility between management and mobile users.
+The applications operate on **shared centralized data**.
 
 ### Example
 
@@ -440,19 +516,19 @@ A loading operator changes:
 Seal: 116094 → 116095
 ```
 
-The management interface should receive the updated information **without** requiring a manual file upload or manual refresh workflow.
+The central database is updated. Management sees the updated value **in real time**, without a manual file upload or a required manual refresh workflow.
 
-Likewise, if authorized management changes information, the mobile application should receive the updated record.
+Likewise, if authorized management changes a truck detail, the mobile application receives the updated information.
 
 ### Conceptual sync flow
 
 ```
-Mobile App → Central Database → Realtime update → Management App
+Mobile App → Central Database → Realtime update → Desktop App
 
-Management App → Central Database → Realtime update → Mobile App
+Desktop App → Central Database → Realtime update → Mobile App
 ```
 
-**Intended platform:** Supabase (PostgreSQL + Realtime).
+**Intended platform:** Supabase (PostgreSQL + Auth + Realtime + Storage).
 
 ---
 
@@ -552,6 +628,7 @@ The digital system should eventually generate a final loading document/PDF from 
 - Generated document may resemble the existing paper form
 - Database remains the source of truth
 - PDF is an **output/report**, not the primary data store
+- Operational data is the source of truth; the final document is an output of that data
 
 ### Possible later capabilities (not all necessarily V1)
 
@@ -599,12 +676,14 @@ This is a **company/internal operational system**, not a public consumer applica
 
 | App | Initial distribution concept |
 |-----|------------------------------|
-| Management | Web application accessible from company computers |
-| Mobile | Authorized company personnel only |
+| Management | Dedicated desktop application installed on company computers (Tauri 2) |
+| Mobile | Dedicated mobile application for authorized company personnel only |
 
 The system does **not** need to be treated as a public consumer application. Design with private/internal use in mind.
 
 Possible future mobile distribution: private organizational distribution or controlled installation (not necessarily a publicly discoverable store listing). This is a **deployment concern for later** and should not unnecessarily influence initial product architecture.
+
+Do not invent a full deployment or CI/CD architecture here.
 
 ---
 
@@ -612,7 +691,7 @@ Possible future mobile distribution: private organizational distribution or cont
 
 Operational loading should not completely stop because of a temporary network interruption.
 
-**Offline capability is an important future consideration** for the mobile application (not required for initial documentation/build phase).
+**Offline capability is an important future consideration** for the mobile application (not a confirmed V1 requirement).
 
 ### Future offline goals
 
@@ -645,19 +724,26 @@ The system contains operational company information; access must be controlled.
 **Intended backend platform:** Supabase.  
 Do not implement security configuration until implementation phase begins with a defined permission model.
 
+The desktop UI bundle and the mobile app must never receive the Supabase **service-role** key. Privileged operations belong in trusted backend paths (Supabase with RLS, and/or Tauri native commands if later required).
+
 ---
 
 ## 21. Technology direction
 
 | Layer | Direction |
 |-------|-----------|
-| Backend | Supabase — PostgreSQL, Authentication, Realtime, Storage, database functions/triggers where appropriate |
-| Management | Web application, initially accessible from desktop browsers |
-| Mobile | Native mobile application; **React Native / Expo** expected direction |
+| Backend | **Supabase** — PostgreSQL, Authentication, Realtime, Storage, and database functionality needed for the application |
+| Management | **Dedicated desktop application — Tauri 2** |
+| Mobile | Dedicated mobile application (current repository starting point: Expo / React Native) |
 
-Exact frontend framework choices beyond the above direction, project structure, package configuration, and deployment configuration will be decided later.
+Do **not** lock in or invent:
 
-**Do not initialize or configure these stacks until implementation is explicitly started.**
+- State-management library
+- Specific UI component library beyond what already exists for scaffolding
+- Deployment architecture
+- CI/CD architecture
+
+Shared TypeScript libraries exist in this repository so desktop and mobile can reuse domain types and tokens. That is **repository organization**, not a product decision that the system “must be a monorepo.”
 
 ---
 
@@ -719,7 +805,7 @@ Potential future functionality (possibilities only — **not confirmed V1 requir
 
 - QR code scanning
 - Barcode scanning
-- OCR / document recognition
+- OCR / document recognition / document extraction
 - Automatic extraction from existing packing-list PDFs/images
 - Photo evidence
 - Digital signatures
@@ -755,18 +841,17 @@ The final document can be generated from structured operational data.
 
 Keep V1 focused. Do not expand unnecessarily.
 
-### Management (V1 target)
+### Desktop (V1 target)
 
 - Authentication
-- Daily loading dashboard
-- Daily loading list
-- Import truck/loading data
-- Truck list
+- Daily loading management
+- Import/create loading lists
+- Truck management
 - Truck details
-- Bag list
-- Edit authorized information
+- Bag details
 - Loading status
 - Real-time monitoring
+- Modification visibility
 - Audit history
 - Export/print
 
@@ -774,11 +859,12 @@ Keep V1 focused. Do not expand unnecessarily.
 
 - Authentication
 - Today's trucks
-- Find/select truck
-- Truck loading details
-- Individual bag verification
-- Bag information modification where authorized
-- Modification reason
+- Truck selection
+- Truck loading record
+- Bag verification
+- Weight/seal recording
+- Authorized corrections
+- Modification reasons
 - Truck completion
 - Real-time synchronization
 
@@ -816,7 +902,7 @@ Each row contains a bag number, net weight, and seal number.
 
 This documentation file is the project's **source of truth**.
 
-When implementation begins:
+When implementing:
 
 1. Read this file before making architectural decisions.
 2. Do not invent business requirements.
@@ -825,22 +911,8 @@ When implementation begins:
 5. If a technical decision materially affects the business workflow, explain the issue before proceeding.
 6. Keep the system focused on the truck loading operation.
 7. Prefer a simple reliable implementation over unnecessary complexity.
-
-### Explicitly out of scope for this documentation-only phase
-
-Do **not** yet:
-
-- Initialize the project beyond documentation
-- Install packages
-- Create Supabase projects
-- Create database tables
-- Write application code
-- Create UI
-- Create routes
-- Configure authentication
-- Configure deployment
-- Configure environment variables
-- Create mobile/desktop projects
+8. Do not reintroduce a web/browser management client.
+9. Do not describe or impose an unapproved “monorepo product architecture.”
 
 ---
 
@@ -861,7 +933,9 @@ The following items are intentionally deferred and must be confirmed with stakeh
 | Offline mobile sync/conflict strategy | Future consideration; keep architecture open |
 | PDF layout vs paper resemblance | Output later; DB remains source of truth |
 | Mobile distribution method | Later deployment concern |
-| Frontend framework specifics / monorepo structure | Decide at implementation start |
+| Desktop UI library / state management | Not locked beyond Tauri 2 |
+| Long-term mobile framework | Current starting point is Expo; confirm before a switch |
+| Deployment / CI/CD | Not defined |
 
 ---
 
@@ -875,8 +949,8 @@ The following items are intentionally deferred and must be confirmed with stakeh
 | Seal | Seal number associated with a bag |
 | Verification | Operator confirmation of bag data during physical loading |
 | Audit event | Immutable recorded change or operational event |
-| Management app | Web interface for supervisors/office staff |
-| Mobile loading app | Mobile interface for loading-floor operators |
+| Management app | Dedicated desktop application for supervisors/office staff |
+| Mobile loading app | Dedicated mobile application for loading-floor operators |
 | Source of truth | Centralized Supabase/PostgreSQL database of operational entities |
 
 ---

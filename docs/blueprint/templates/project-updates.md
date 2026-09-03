@@ -35,5 +35,12 @@ Format:
 
 - Type: Docs
 - Description: Confirmed market and languages — DRC only; Mandarin, English, and French
-- Impact: Updated overview, brand, glossary, agent rules, roles/flows, feature open questions, ADR-001, PROJECT_KNOWLEDGE, README; web layout note for future i18n
+- Impact: Updated overview, brand, glossary, agent rules, roles/flows, feature open questions, ADR-001, PROJECT_KNOWLEDGE, README
 - Tests: N/A
+
+## 2026-09-03
+
+- Type: Infra
+- Description: Replaced the Next.js management web app with a dedicated Tauri 2 desktop app; aligned product knowledge to desktop + mobile + shared Supabase
+- Impact: Removed `apps/web`; added `apps/desktop`; updated PROJECT_KNOWLEDGE, blueprint, setup docs, ADR-001, env example, design-token/UI comments
+- Tests: passed (`pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm build`)

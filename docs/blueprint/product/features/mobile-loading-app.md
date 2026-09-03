@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Mobile surface for loading-floor personnel to find today’s trucks, verify bags quickly, record authorized changes, and complete trucks against the shared operational database.
+Dedicated mobile application for loading-floor personnel to find today’s trucks, verify bags quickly, record authorized changes, and complete trucks against the shared operational database.
 
 ## Design
 
 See [../design-dna.md](../design-dna.md).
 
-Platform-native patterns; same product language as web, not a visual clone.
+Platform-native patterns; same product language as the desktop app, not a visual clone.
 
 ## Users
 
@@ -34,7 +34,7 @@ Known from product knowledge:
 - Record verifier identity, timestamp, and values at verification
 - Modifications preserve history (previous/new, who, when, reason when required)
 - Controlled truck status transitions with audit
-- Real-time sync with management
+- Real-time sync with the desktop management application through Supabase
 - QR/barcode truck open: future feature
 
 ## Data
@@ -44,7 +44,7 @@ Screen → UI/state → query/mutation layer → API/backend boundary. No privil
 ## Out of scope
 
 - Full offline-first mode in V1 (architecture must not forbid it later)
-- Making mobile identical to web layout
+- Making mobile identical to the desktop layout
 - Public app-store consumer positioning
 
 ## Open questions

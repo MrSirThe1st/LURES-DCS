@@ -8,7 +8,7 @@ Hierarchy:
 brand.md
   → design-dna.md
     → packages/design-tokens
-      → Web / Tailwind
+      → Desktop / Tailwind
       → Mobile / React Native theme
 ```
 
@@ -69,7 +69,7 @@ Minimal elevation. Prefer borders/surfaces over heavy multi-layer shadows.
 
 ## Component feel
 
-- Composable primitives in `packages/ui` (web)
+- Composable primitives in `packages/ui` (desktop)
 - Predictable, accessible, small
 - No business rules inside generic UI
 - Mobile components live in the mobile app (or a future deliberate cross-platform UI package) — do not force RN into `@lures-dcs/ui` prematurely
@@ -85,15 +85,15 @@ Minimal elevation. Prefer borders/surfaces over heavy multi-layer shadows.
 
 | Surface | Guidance |
 |---------|----------|
-| Management web | Desktop-first operational dashboard density; keyboard focus visible |
+| Management desktop | Operational density for office work; keyboard focus visible |
 | Mobile loading | One job per screen; large controls; readable outdoors/warehouse conditions TBD |
 
 ## Accessibility expectations
 
 - Sufficient contrast once production colors are chosen (validate then)
-- Visible focus states on web
+- Visible focus states on the desktop app
 - Accessible labels on controls
-- Keyboard navigation for web flows
+- Keyboard navigation for desktop flows
 - Adequate touch targets on mobile
 - Semantic controls
 - Respect reduced motion where applicable
@@ -106,4 +106,4 @@ Minimal elevation. Prefer borders/surfaces over heavy multi-layer shadows.
 - Cards/chrome that obscure operational status
 - Giant components with embedded business logic
 - Arbitrary Tailwind values that bypass tokens without reason
-- Making mobile a pixel clone of web
+- Making mobile a pixel clone of desktop

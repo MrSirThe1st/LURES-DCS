@@ -1,6 +1,6 @@
 import { colors, radii, spacing, typography } from './index.js';
 
-/** React Native theme object derived from the same tokens as web. */
+/** React Native theme object derived from the same tokens as the desktop UI. */
 export const nativeTheme = {
   colors: {
     background: colors.background,

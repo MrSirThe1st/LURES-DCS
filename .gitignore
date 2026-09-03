@@ -6,12 +6,14 @@ node_modules
 .env.*.local
 dist
 build
-.next
 .turbo
 coverage
 .expo
 apps/mobile/.expo
-apps/web/.next
+apps/desktop/dist
+apps/desktop/src-tauri/target
+apps/desktop/src-tauri/icons/android
+apps/desktop/src-tauri/icons/ios
 **/*.tsbuildinfo
 .vercel
 *.pem

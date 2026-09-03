@@ -2,14 +2,14 @@
 
 **Provider:** Supabase Auth
 
-## Web authentication (`apps/web`)
+## Desktop authentication (`apps/desktop`)
 
-- Use the Supabase browser client only with the **anon/public** key
-- Resolve sessions on the server for protected App Router pages
+- Use the Supabase JS client only with the **anon/public** key (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- Persist session inside the desktop application, not in a browser product
 - Centralize helpers; do not scatter raw auth calls
 
 TODO: document exact helper file paths when implemented  
-TODO: protected route redirect map for management UI
+TODO: protected screen map for the management UI
 
 ## Mobile authentication (`apps/mobile`)
 
@@ -22,17 +22,17 @@ TODO: deep-link / auth callback configuration
 ## Session resolution
 
 ```
-Request/screen
+Screen
   → centralized session helper
   → authenticated user identity
-  → authorization checks (server/RLS)
+  → authorization checks (RLS / trusted use-cases)
 ```
 
 Never trust client-supplied role fields as authority.
 
 ## Protected routes
 
-TODO: define route groups and redirect rules per surface
+TODO: define screen groups and redirect rules per application
 
 ## Authorization / role checks
 
@@ -45,7 +45,7 @@ Permission matrix: **TODO: define access scope**
 
 Enforce with:
 
-1. Server-side checks in use-cases / route handlers
+1. Trusted checks in use-cases
 2. Supabase Row Level Security policies
 
 ## Redirect rules
@@ -56,13 +56,13 @@ TODO: define unauthenticated → login and unauthorized → safe fallback per ap
 
 Public / client-safe:
 
-- `NEXT_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL` → `{{AUTH_PROJECT_URL}}`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL` → `{{AUTH_PROJECT_URL}}`
+- `VITE_SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
-Server-only:
+Privileged (never ship to desktop UI or mobile):
 
-- `SUPABASE_SERVICE_ROLE_KEY` (never ship to web or mobile clients)
-- Other server secrets as introduced
+- `SUPABASE_SERVICE_ROLE_KEY`
+- Other secrets as introduced
 
 See repo root `.env.example`.
 

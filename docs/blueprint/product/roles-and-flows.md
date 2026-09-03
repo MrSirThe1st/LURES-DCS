@@ -18,7 +18,7 @@ Do not assume every user has all permissions.
 ```
 Login
   ↓
-Daily Loading Dashboard
+Daily loading overview
   ↓
 Import/create daily loading schedule
   ↓
@@ -38,7 +38,7 @@ Export/print final records
 ```
 
 1. Authenticate as Management
-2. Open today’s operational dashboard
+2. Open today’s operational overview
 3. Import or create the daily loading list
 4. Monitor truck statuses and totals
 5. Open a truck to review bags and audit events
@@ -80,7 +80,7 @@ Complete truck
 | Notifications | TODO: define when known |
 | Auditability | Important changes and status transitions create immutable audit events (from normal UI) |
 | Error handling | Clear operational errors; no secret leakage |
-| Realtime | Management and mobile share one DB; updates visible without file exchange |
+| Realtime | Desktop and mobile share one DB; updates visible without file exchange |
 | Offline | Important future consideration; not V1 requirement |
 | Import | Excel/CSV validation before write; format TBD |
 | Market | DRC only |

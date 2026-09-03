@@ -10,7 +10,7 @@ export type ServiceSupabaseEnv = PublicSupabaseEnv & {
 };
 
 /**
- * Browser/mobile-safe client (anon key only).
+ * Desktop-renderer / mobile-safe client (anon key only).
  * Never pass the service-role key here.
  */
 export function createPublicSupabaseClient(env: PublicSupabaseEnv): SupabaseClient {
@@ -23,8 +23,8 @@ export function createPublicSupabaseClient(env: PublicSupabaseEnv): SupabaseClie
 }
 
 /**
- * Server-only privileged client.
- * Callers must ensure this never reaches web or mobile bundles.
+ * Privileged client for trusted server-side or desktop-native (Rust) use only.
+ * Callers must ensure this never reaches the desktop UI bundle or mobile app.
  */
 export function createServiceSupabaseClient(env: ServiceSupabaseEnv): SupabaseClient {
   return createClient(env.url, env.serviceRoleKey, {

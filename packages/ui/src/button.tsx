@@ -27,7 +27,7 @@ const variantStyles: Record<ButtonVariant, { background: string; color: string; 
     },
   };
 
-/** Minimal web Button primitive — no product business rules. */
+/** Minimal desktop Button primitive — no product business rules. */
 export function Button({
   children,
   variant = 'primary',

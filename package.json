@@ -20,6 +20,6 @@
     "node": ">=20"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "unrs-resolver"]
+    "onlyBuiltDependencies": ["esbuild", "unrs-resolver", "@tauri-apps/cli"]
   }
 }

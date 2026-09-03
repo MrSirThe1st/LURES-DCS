@@ -48,7 +48,7 @@ TODO: confirm approved terminology lists for Mandarin, English, and French
 |---------|------------|
 | Product | Truck Loading & Dispatch Control System / LURES-DCS |
 | Packages | `@lures-dcs/*` |
-| Apps | `apps/web`, `apps/mobile` |
+| Apps | `apps/desktop`, `apps/mobile` |
 | Domain terms | Prefer glossary names; avoid synonym drift |
 
 ## UX writing principles
