@@ -1,0 +1,39 @@
+/**
+ * Temporary CSS variables mirroring design tokens.
+ * Production brand palette: TODO — see design-dna.md
+ *
+ * Use --lures-* names so Tailwind @theme can map semantic utilities
+ * without circular self-references.
+ */
+:root {
+  --lures-color-background: #f4f4f5;
+  --lures-color-surface: #ffffff;
+  --lures-color-text-primary: #18181b;
+  --lures-color-text-secondary: #52525b;
+  --lures-color-border: #d4d4d8;
+  --lures-color-primary: #27272a;
+  --lures-color-primary-foreground: #fafafa;
+  --lures-color-destructive: #7f1d1d;
+  --lures-color-destructive-foreground: #fef2f2;
+  --lures-color-success: #14532d;
+  --lures-color-warning: #713f12;
+  --lures-color-focus: #3f3f46;
+
+  --lures-space-xs: 4px;
+  --lures-space-sm: 8px;
+  --lures-space-md: 16px;
+  --lures-space-lg: 24px;
+  --lures-space-xl: 32px;
+
+  --lures-radius-sm: 4px;
+  --lures-radius-md: 8px;
+  --lures-radius-lg: 12px;
+  --lures-radius-full: 9999px;
+
+  --lures-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --lures-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --lures-motion-fast: 120ms;
+  --lures-motion-normal: 200ms;
+  --lures-motion-slow: 320ms;
+}

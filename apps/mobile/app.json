@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "LURES-DCS Loading",
+    "slug": "lures-dcs-mobile",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "scheme": "lures-dcs",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.luresdcs.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "com.luresdcs.mobile"
+    }
+  }
+}

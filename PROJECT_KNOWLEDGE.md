@@ -515,7 +515,10 @@ Date: 3-Sep-26
 Description: Concentrate de cuivre
 ```
 
-**Localization note:** Exact terminology may need to support the company's **French** terminology.
+**Localization / market notes:**
+- The system is for use in the **DRC only**.
+- The product must support **three languages: Mandarin, English, and French**.
+- Exact approved terminology per language will be confirmed from company usage; do not invent translations.
 
 ---
 
@@ -848,7 +851,9 @@ The following items are intentionally deferred and must be confirmed with stakeh
 | Topic | Status |
 |-------|--------|
 | Exact Excel/CSV import format and field mapping | To be confirmed from real company data |
-| Exact truck/bag field list and French terminology | Flexible pending document/workflow review |
+| Exact truck/bag field list and Mandarin / English / French terminology | Flexible pending document/workflow review |
+| Default UI language and language-switch behavior | Three languages required (Mandarin, English, French); details TBD |
+| Geographic scope | DRC only |
 | Role/permission matrix | To be designed before implementation |
 | Truck status naming and allowed transitions | Conceptual only; refine later |
 | Audit event model | Design during implementation |
