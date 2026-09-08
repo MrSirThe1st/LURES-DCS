@@ -9,7 +9,10 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:migrate": "bash -lc 'set -a && source .env.local && set +a && psql \"$DIRECT_URL\" -v ON_ERROR_STOP=1 -f supabase/migrations/20260904000000_core_operational_schema.sql && psql \"$DIRECT_URL\" -v ON_ERROR_STOP=1 -f supabase/migrations/20260904120000_realtime_replica_identity.sql && psql \"$DIRECT_URL\" -v ON_ERROR_STOP=1 -f supabase/migrations/20260904140000_import_bulletin_fields.sql && psql \"$DIRECT_URL\" -v ON_ERROR_STOP=1 -f supabase/migrations/20260905100000_truck_status_available.sql'",
+    "bootstrap:users": "node --env-file=.env.local scripts/bootstrap-dev-users.mjs",
+    "seed:today": "node --env-file=.env.local scripts/seed-today.mjs"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

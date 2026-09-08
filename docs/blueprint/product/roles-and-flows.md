@@ -20,11 +20,11 @@ Login
   ↓
 Daily loading overview
   ↓
-Import/create daily loading schedule
+Import/create daily loading schedule (Waiting)
   ↓
-View trucks scheduled for loading
+Mark trucks Available / Hold / Cancel
   ↓
-Monitor loading progress
+Monitor loading progress (floor → Loading → Completed)
   ↓
 Open individual truck
   ↓
@@ -39,10 +39,10 @@ Export/print final records
 
 1. Authenticate as Management
 2. Open today’s operational overview
-3. Import or create the daily loading list
-4. Monitor truck statuses and totals
-5. Open a truck to review bags and audit events
-6. Make authorized edits when needed
+3. Import or create the daily loading list (trucks start Waiting)
+4. Mark trucks **Available** (or Hold / Cancel) — do not set Loading
+5. Monitor progress bars and statuses as the floor works
+6. Open a truck to review bags and audit events
 7. Export/print completed records
 
 ### Loading / operational staff (mobile)
@@ -52,11 +52,11 @@ Login
   ↓
 Today's Trucks
   ↓
-Select/scan Truck
+Select/scan Truck (Available or Loading)
   ↓
 Truck Loading Record
   ↓
-Review/verify individual bags
+Review/verify individual bags (first op → Loading)
   ↓
 Record changes if necessary
   ↓
@@ -64,9 +64,9 @@ Complete truck
 ```
 
 1. Authenticate as loading staff
-2. Open today’s truck list
-3. Select the correct truck (scan is future)
-4. Verify bags (who/when/what recorded)
+2. Open today’s truck list (Waiting trucks are visible but read-only)
+3. Select an Available/Loading truck (scan is future)
+4. Verify bags (who/when/what recorded); first bag op moves truck to Loading
 5. Record authorized modifications with reason when required
 6. Mark truck completed when appropriate
 
@@ -82,6 +82,6 @@ Complete truck
 | Error handling | Clear operational errors; no secret leakage |
 | Realtime | Desktop and mobile share one DB; updates visible without file exchange |
 | Offline | Important future consideration; not V1 requirement |
-| Import | Excel/CSV validation before write; format TBD |
+| Import | Excel/CSV liste de colisage multi-file; Append or Replace; see import-format.md |
 | Market | DRC only |
 | Languages | Mandarin, English, and French — TODO: default language and switch UX |

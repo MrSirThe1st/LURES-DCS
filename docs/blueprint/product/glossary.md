@@ -4,15 +4,18 @@ Entity glossary from documented product knowledge. Meanings stay conceptual unti
 
 | Term | Meaning | Code name | Notes |
 |------|---------|-----------|-------|
-| User | Authenticated company user | TODO | Roles: Management, Loading staff |
+| User | Authenticated company user | `profiles` | Roles: Management, Loading staff |
 | Organization | Company / org context | TODO | Multi-org TBD |
-| Loading List | Planned loading operation or group of trucks for a date/reference | TODO | Also related to packing list number |
-| Truck | Operational loading record for one vehicle load | TODO | Not a PDF |
-| Bag | Individual bag/unit with number, net weight, seal | TODO | Per-truck children |
-| Driver | Driver associated with a truck load | TODO | Fields TBD |
-| Transporter | Transport company | TODO | |
+| Packing list (bundle) | Daily bulletin group of trucks / listes de colisage | `loading_lists` | Bulletin ref in `packing_list_number` |
+| Liste de colisage | Per-truck packing sheet (header + bags) | one `trucks` + `bags` | Lot NO → `trucks.packing_list_number` |
+| Bulletin de pesage | Daily summary of trucks for a packing list | informs `loading_lists` | Optional import later |
+| Loading List | Synonym for packing-list bundle for a date | `loading_lists` | Prefer this operational name in UI when helpful |
+| Truck | Operational loading record for one vehicle load | `trucks` | Not a PDF |
+| Bag | Individual bag/unit with number, net weight, seal | `bags` | Per-truck children |
+| Driver | Driver associated with a truck load | truck fields | Name + passport reference |
+| Transporter | Transport company | `transporter_name` | |
 | Loading Operation | Operational loading activity/context | TODO | Precise model TBD |
-| Audit Event | Immutable recorded change or operational event | TODO | Fundamental requirement |
+| Audit Event | Immutable recorded change or operational event | `audit_events` | Fundamental requirement |
 | Attachment / Document | Generated or uploaded document related to loading | TODO | PDF is an output |
 
 ## Status / lifecycle
@@ -21,13 +24,14 @@ Entity glossary from documented product knowledge. Meanings stay conceptual unti
 
 | Status | Intent |
 |--------|--------|
-| Waiting (Not Started) | Scheduled, not yet worked |
-| Loading | Actively being loaded/verified |
-| Completed | Loading finished |
-| On Hold | Operational issue; paused |
+| Waiting | Imported / scheduled; floor read-only until released |
+| Available | Management released for floor; work not started yet |
+| Loading | Floor has started bag verify/edit |
+| Completed | Floor marked loading finished |
+| On Hold | Operational issue; paused (resume → Available) |
 | Cancelled | Loading cancelled |
 
-Primary happy path: `Waiting → Loading → Completed`. Transitions must be controlled and audited.
+Primary happy path: `Waiting → Available → Loading → Completed`. Management sets Available / Hold / Cancel only; Loading starts on first floor bag operation; Completed is set from mobile.
 
 ### Bag verification
 
@@ -39,7 +43,8 @@ Do not invent additional lifecycle states.
 
 ## Terminology consistency
 
-- Prefer **Loading List** for the planned group; packing/list number is a field/reference
+- Prefer **Packing list** for the daily **bundle** (bulletin + many listes de colisage); DB: `loading_lists`
+- Prefer **Liste de colisage** for one truck’s sheet; DB: one `trucks` row + `bags`
 - Prefer **Truck** for the operational entity (not “the PDF”)
 - Prefer **Bag** for each weighed/sealed unit
 - Prefer **Audit Event** for history entries

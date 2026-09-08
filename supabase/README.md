@@ -1,7 +1,42 @@
 # Supabase
 
-Versioned SQL migrations live in `migrations/`.
+Remote project is connected via root `.env.local` (gitignored).
 
-TODO: link/generate full Supabase CLI `config.toml` when the project is connected.
+## Migrations
 
-Do not invent product tables here. Schema work must follow `docs/blueprint` and `PROJECT_KNOWLEDGE.md`.
+Versioned SQL lives in `migrations/`.
+
+Applied foundation migration:
+
+- `20260904000000_core_operational_schema.sql`
+
+Creates:
+
+- `profiles`
+- `loading_lists`
+- `trucks`
+- `bags`
+- `audit_events`
+- `truck_weight_totals` (view)
+- RLS policies
+- Realtime publication for operational tables
+
+Apply (or re-apply idempotent parts) with:
+
+```bash
+set -a && source .env.local && set +a
+psql "$DIRECT_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/20260904000000_core_operational_schema.sql
+```
+
+## Bootstrap first users
+
+```bash
+node --env-file=.env.local scripts/bootstrap-dev-users.mjs
+```
+
+Creates temporary Management + Loading Auth users and matching `profiles` rows.
+Change the default passwords immediately.
+
+## Schema rules
+
+Do not invent product tables outside `docs/blueprint` and `PROJECT_KNOWLEDGE.md`.

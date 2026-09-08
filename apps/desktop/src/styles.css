@@ -3,7 +3,8 @@
 
 /*
   Map semantic tokens into Tailwind v4 theme.
-  Values come from packages/design-tokens — do not invent a second palette here.
+  Do NOT register --spacing-sm/md/lg — those collide with Tailwind width/max-width
+  utilities (e.g. max-w-md became 16px and crushed the login layout).
 */
 @theme {
   --color-background: var(--lures-color-background);
@@ -19,11 +20,11 @@
   --color-text-primary: var(--lures-color-text-primary);
   --color-text-secondary: var(--lures-color-text-secondary);
 
-  --spacing-xs: var(--lures-space-xs);
-  --spacing-sm: var(--lures-space-sm);
-  --spacing-md: var(--lures-space-md);
-  --spacing-lg: var(--lures-space-lg);
-  --spacing-xl: var(--lures-space-xl);
+  --spacing-space-xs: var(--lures-space-xs);
+  --spacing-space-sm: var(--lures-space-sm);
+  --spacing-space-md: var(--lures-space-md);
+  --spacing-space-lg: var(--lures-space-lg);
+  --spacing-space-xl: var(--lures-space-xl);
 
   --radius-sm: var(--lures-radius-sm);
   --radius-md: var(--lures-radius-md);
@@ -38,6 +39,7 @@ body,
 #root {
   margin: 0;
   min-height: 100%;
+  width: 100%;
   background: var(--lures-color-background);
   color: var(--lures-color-text-primary);
   font-family: var(--lures-font-sans);

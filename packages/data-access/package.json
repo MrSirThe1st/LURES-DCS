@@ -18,6 +18,7 @@
     "test": "echo \"test: @lures-dcs/data-access (none yet)\""
   },
   "dependencies": {
+    "@lures-dcs/api-contracts": "workspace:*",
     "@lures-dcs/domain": "workspace:*",
     "@supabase/supabase-js": "^2.57.4"
   },

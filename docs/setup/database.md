@@ -6,21 +6,22 @@
 
 | Use | Variable (name only) | Notes |
 |-----|----------------------|-------|
-| App runtime | Supabase client URL + anon key | Desktop (`VITE_*`) and mobile (`EXPO_PUBLIC_*`) |
-| Direct / migrations | `DIRECT_URL` or Supabase direct DB URL | Use for migrations when pooler is unsuitable |
-| Privileged tooling | `SUPABASE_SERVICE_ROLE_KEY` | Never in desktop UI or mobile |
+| App runtime | Supabase URL + publishable key | Desktop (`VITE_*`) and mobile (`EXPO_PUBLIC_*`) |
+| Transaction pooler | `DATABASE_URL` | Port `6543` — runtime / pooled queries |
+| Session / migrations | `DIRECT_URL` | Port `5432` session pooler when transaction mode is unsuitable |
+| Privileged tooling | `SUPABASE_SECRET_KEY` | Never in desktop UI or mobile |
 
-Never commit URLs that embed credentials. Use placeholders such as `{{DATABASE_URL}}`.
+Never commit URLs that embed credentials.
 
 ## Environment variables
 
-Documented in `.env.example`:
+Live in root `.env.local` (gitignored):
 
 - `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (privileged only)
-- `DATABASE_URL` (if used by tooling)
-- `DIRECT_URL` (if used by migrations)
+- `VITE_SUPABASE_PUBLISHABLE_KEY` / `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY` (privileged only)
+- `DATABASE_URL` (transaction pooler)
+- `DIRECT_URL` (session pooler / migrations)
 
 ## Migration location
 
@@ -34,8 +35,17 @@ Do not modify production schema manually when a migration should represent the c
 
 ## Local development
 
-TODO: document local Supabase CLI workflow for this repository  
-TODO: document how generated database types are produced and where they are committed
+Root `.env.local` holds project URL, publishable key, secret key, and pooler URLs.
+
+Apply migrations with `psql` against `DIRECT_URL` (session pooler).
+
+Bootstrap first Management / Loading users:
+
+```bash
+node --env-file=.env.local scripts/bootstrap-dev-users.mjs
+```
+
+TODO: document generated-type workflow when Docker/`supabase gen types` is available locally.
 
 ## Production migration guidance
 

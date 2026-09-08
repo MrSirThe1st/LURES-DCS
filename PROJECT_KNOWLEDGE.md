@@ -600,22 +600,32 @@ Description: Concentrate de cuivre
 
 ## 15. Importing daily data
 
-One of the main management functions will eventually be importing daily truck/loading information.
+One of the main management functions is importing daily truck/loading information as a **packing list bundle**.
 
-**Preferred first approach:** structured Excel/CSV import.
+**Preferred first approach:** structured Excel/CSV import of **listes de colisage** (one file per truck).
 
-### Intended import flow (do not implement until format is confirmed)
+### Paper documents
 
-1. Allow management to select a file
-2. Read the structured data
+- **Bulletin de pesage** — daily summary of trucks in the packing list (bundle overview)
+- **Liste de colisage** — per-truck sheet with header fields and bag rows (bag no, net weight kg, seal)
+
+A packing list is composed of several listes de colisage (not a single flat truck-only file).
+
+### Import flow (implemented)
+
+1. Management selects one or more liste de colisage files (.xlsx / .csv)
+2. App reads structured data
 3. Validate the data
 4. Show an import preview
 5. Identify errors or missing required fields
-6. Allow the user to confirm the import
-7. Create the appropriate loading list, trucks, and bags
-8. Report what was imported
+6. Choose **Append** or **Replace** for that loading date
+7. Confirm the import
+8. Create/update the loading list, trucks, and bags; write audit events
+9. Report what was imported
 
-The exact spreadsheet format must be confirmed from **real company data** before implementation.
+Provisional format and fixtures: [`docs/setup/import-format.md`](./docs/setup/import-format.md), [`fixtures/import/`](./fixtures/import/).
+
+Exact company export layout may still be refined from live office files; the parser accepts FR/EN aliases from the paper forms.
 
 ---
 
@@ -922,7 +932,7 @@ The following items are intentionally deferred and must be confirmed with stakeh
 
 | Topic | Status |
 |-------|--------|
-| Exact Excel/CSV import format and field mapping | To be confirmed from real company data |
+| Exact Excel/CSV import format and field mapping | Provisional format shipped; refine from live company exports |
 | Exact truck/bag field list and Mandarin / English / French terminology | Flexible pending document/workflow review |
 | Default UI language and language-switch behavior | Three languages required (Mandarin, English, French); details TBD |
 | Geographic scope | DRC only |

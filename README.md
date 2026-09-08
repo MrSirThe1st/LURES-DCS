@@ -6,7 +6,7 @@ Internal operational system for centralized truck loading and dispatch control.
 
 - Product knowledge: [`PROJECT_KNOWLEDGE.md`](./PROJECT_KNOWLEDGE.md)
 - Blueprint: [`docs/blueprint/README.md`](./docs/blueprint/README.md)
-- Setup: [`docs/setup/auth.md`](./docs/setup/auth.md), [`docs/setup/database.md`](./docs/setup/database.md)
+- Setup: [`docs/setup/auth.md`](./docs/setup/auth.md), [`docs/setup/database.md`](./docs/setup/database.md), [`docs/setup/import-format.md`](./docs/setup/import-format.md)
 
 ## Applications
 
@@ -41,7 +41,23 @@ Mobile:
 pnpm --filter @lures-dcs/mobile dev
 ```
 
-Copy `.env.example` to local env files and fill placeholders. Never commit secrets.
+Mobile login (loading staff): `loading@lures.local` / `ChangeMe-Loading-1`
+
+Local secrets live in root `.env.local` (gitignored). Never commit secrets.
+
+Bootstrap first Management / Loading users after schema setup:
+
+```bash
+pnpm bootstrap:users
+pnpm seed:today
+```
+
+Desktop UI only (Vite, no Tauri window):
+
+```bash
+pnpm --filter @lures-dcs/desktop dev:ui
+```
+
 
 ## Market and languages
 

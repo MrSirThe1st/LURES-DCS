@@ -1,27 +1,137 @@
-import { Button } from '@lures-dcs/ui';
+import { useCallback, useRef, useState } from 'react';
+import type { ImportResult } from '@lures-dcs/api-contracts';
+import { ImportModal } from './components/ImportModal';
+import { OverlayCloseButton } from './components/OverlayCloseButton';
+import { TopNav, type AppPage } from './components/TopNav';
+import { AuthProvider, useAuth } from './lib/auth';
+import { HistoryScreen } from './screens/HistoryScreen';
+import { LoginScreen } from './screens/LoginScreen';
+import { ReportsScreen } from './screens/ReportsScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
+import { TodayOverviewScreen } from './screens/TodayOverviewScreen';
+import { TruckDetailScreen } from './screens/TruckDetailScreen';
 
-/**
- * Foundation shell only — no product screens yet.
- * Management UI will be implemented against docs/blueprint.
- *
- * Product languages: Mandarin, English, French (DRC-only deployment).
- * TODO: wire i18n and set document language from the active locale.
- */
+type Screen =
+  | { name: 'page'; page: AppPage }
+  | { name: 'truck'; truckId: string };
+
+function AuthenticatedApp() {
+  const { loading, session, profile } = useAuth();
+  const [screen, setScreen] = useState<Screen>({ name: 'page', page: 'loading' });
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [overviewRefreshKey, setOverviewRefreshKey] = useState(0);
+  const noticeTimerRef = useRef<number | null>(null);
+
+  const activePage: AppPage = screen.name === 'truck' ? 'loading' : screen.page;
+
+  const clearActionNotice = useCallback(() => {
+    if (noticeTimerRef.current != null) {
+      window.clearTimeout(noticeTimerRef.current);
+      noticeTimerRef.current = null;
+    }
+    setActionNotice(null);
+  }, []);
+
+  const showActionNotice = useCallback(
+    (message: string) => {
+      clearActionNotice();
+      setActionNotice(message);
+      noticeTimerRef.current = window.setTimeout(() => {
+        setActionNotice(null);
+        noticeTimerRef.current = null;
+      }, 4000);
+    },
+    [clearActionNotice],
+  );
+
+  const navigate = useCallback((page: AppPage) => {
+    setScreen({ name: 'page', page });
+  }, []);
+
+  const handleImported = useCallback(
+    (result: ImportResult) => {
+      setOverviewRefreshKey((key) => key + 1);
+      setScreen({ name: 'page', page: 'loading' });
+      const removed =
+        result.trucks_removed && result.trucks_removed > 0
+          ? ` · removed ${result.trucks_removed}`
+          : '';
+      showActionNotice(
+        `Imported ${result.trucks_created} truck(s), ${result.bags_created} bag(s) (${result.mode})${removed}.`,
+      );
+    },
+    [showActionNotice],
+  );
+
+  if (loading) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-md items-center p-space-lg">
+        <p className="text-base text-text-secondary">Restoring session…</p>
+      </main>
+    );
+  }
+
+  if (!session || !profile) {
+    return <LoginScreen />;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <TopNav
+        activePage={activePage}
+        onNavigate={navigate}
+        onUpload={() => setImportOpen(true)}
+        onExport={() => showActionNotice('Export will be available in a later slice.')}
+        onSend={() => showActionNotice('Send will be available in a later slice.')}
+      />
+      {actionNotice ? (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-30 cursor-default bg-transparent"
+            aria-label="Dismiss notice"
+            onClick={clearActionNotice}
+          />
+          <div
+            className="fixed left-0 right-0 top-14 z-40 flex items-center gap-space-md border-b border-border bg-surface/95 px-space-md py-space-sm text-sm text-text-secondary shadow-sm backdrop-blur-sm"
+            role="status"
+          >
+            <p className="min-w-0 flex-1">{actionNotice}</p>
+            <OverlayCloseButton onClick={clearActionNotice} />
+          </div>
+        </>
+      ) : null}
+      <div className="flex-1 overflow-auto">
+        {screen.name === 'truck' ? (
+          <TruckDetailScreen
+            truckId={screen.truckId}
+            onBack={() => setScreen({ name: 'page', page: 'loading' })}
+          />
+        ) : null}
+        {screen.name === 'page' && screen.page === 'loading' ? (
+          <TodayOverviewScreen
+            key={overviewRefreshKey}
+            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId })}
+          />
+        ) : null}
+        {screen.name === 'page' && screen.page === 'reports' ? <ReportsScreen /> : null}
+        {screen.name === 'page' && screen.page === 'history' ? <HistoryScreen /> : null}
+        {screen.name === 'page' && screen.page === 'settings' ? <SettingsScreen /> : null}
+      </div>
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={handleImported}
+      />
+    </div>
+  );
+}
+
 export function App() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-md p-lg">
-      <h1 className="text-2xl font-semibold text-text-primary">
-        Truck Loading & Dispatch Control System
-      </h1>
-      <p className="text-md text-text-secondary">
-        Management desktop foundation is ready. Product features are intentionally not implemented
-        yet.
-      </p>
-      <div>
-        <Button type="button" disabled>
-          Foundation shell
-        </Button>
-      </div>
-    </main>
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 }

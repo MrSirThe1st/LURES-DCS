@@ -4,7 +4,7 @@
 
 ## Desktop authentication (`apps/desktop`)
 
-- Use the Supabase JS client only with the **anon/public** key (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- Use the Supabase JS client only with the **publishable** key (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
 - Persist session inside the desktop application, not in a browser product
 - Centralize helpers; do not scatter raw auth calls
 
@@ -54,25 +54,34 @@ TODO: define unauthenticated → login and unauthorized → safe fallback per ap
 
 ## Environment variables
 
-Public / client-safe:
+Public / client-safe (in root `.env.local`):
 
-- `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL` → `{{AUTH_PROJECT_URL}}`
-- `VITE_SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY` / `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
 Privileged (never ship to desktop UI or mobile):
 
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_SECRET_KEY` (`sb_secret_...` — replaces the legacy service-role key)
 - Other secrets as introduced
 
-See repo root `.env.example`.
+See repo root `.env.local` (gitignored).
 
 ## Local development
 
-TODO: document `supabase start` / linked project steps for this repo  
-TODO: first-admin bootstrap process (`{{ADMIN_EMAIL}}` / `{{ADMIN_PASSWORD}}` placeholders only)
+Root `.env.local` must contain:
+
+- `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY` / `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY` (bootstrap / privileged tooling only)
+
+Bootstrap first users after the core schema migration:
+
+```bash
+node --env-file=.env.local scripts/bootstrap-dev-users.mjs
+```
 
 ## First-admin / bootstrap
 
-TODO: define how the first Management user is created (invite, seed script, dashboard)
+The first Management profile is created by the bootstrap script using the secret key (RLS chicken-and-egg). Later Management users can be created through authorized app flows once implemented.
 
-Never commit real passwords, tokens, or service-role keys.
+Never commit real passwords, tokens, or secret keys.
