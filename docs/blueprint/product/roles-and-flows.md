@@ -89,7 +89,7 @@ Complete truck
 5. Record authorized modifications with reason when required
 6. Mark truck completed when appropriate
 
-Hold / Cancel are **not** available on mobile in V1.
+Hold / Cancel are **not** available on mobile in V1 (**Phase 4 closed as deferred** — ADR-002).
 
 ## Cross-cutting rules
 

@@ -66,3 +66,10 @@ Format:
 - Description: Phase 2 History — past loading days with truck drill-in and filterable audit log
 - Impact: `packages/data-access/src/history.ts`, `apps/desktop/src/screens/HistoryScreen.tsx`, App truck return navigation (`from` page), feature docs
 - Tests: passed (data-access + desktop typecheck)
+
+## 2026-09-11
+
+- Type: Mobile | Domain | Docs
+- Description: Phase 4 closed as deferred — mobile Hold/Cancel remain management-only; added `canMobileTransitionTruckStatus` / `assertMobileTruckStatusTransition` and removed open mobile `setTruckStatus` helper
+- Impact: `packages/domain`, `apps/mobile/lib/operations.ts`, ADR-002, mobile feature + roles docs
+- Tests: passed (domain unit tests; mobile typecheck)

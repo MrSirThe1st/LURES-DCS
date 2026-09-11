@@ -140,7 +140,7 @@ export default function TruckDetailScreen() {
             <Text style={styles.meta}>Available — verify the first bag to start Loading.</Text>
           ) : null}
           {truck.status === TruckStatus.OnHold ? (
-            <Text style={styles.meta}>On hold — waiting for management to release again.</Text>
+            <Text style={styles.meta}>On hold — management only; wait for release (mobile cannot Hold/Cancel).</Text>
           ) : null}
         </View>
       ) : null}
