@@ -39,7 +39,7 @@ Still TODO (ordered per ADR-002 V1 completion track):
 
 Deferred (not blocking V1 completion):
 
-- Bulletin de pesage import / cross-check (awaiting stakeholder confirmation)
+- Bulletin de pesage import / cross-check — **Phase 8 closed as deferred** (awaiting stakeholder confirmation; no V1 UX)
 - View-only management sub-role
 - Production brand palette / typography
 

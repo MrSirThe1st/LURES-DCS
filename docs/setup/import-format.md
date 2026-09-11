@@ -47,3 +47,7 @@ Also accepts `.xlsx` with the same sheet layout.
 6. Confirm import
 
 Export/print (V1, ADR-002): **implemented** — desktop TopNav Export builds a PDF from truck+bags (letterhead close to this liste-de-colisage structure), downloads it, opens print, and writes an `exported` audit event. Pixel-identical paper clone is not required. Excel/CSV remains the **import** path (optional report CSV may come later). Mandarin letterhead glyph embedding is deferred (Latin Helvetica in V1 PDF).
+
+## Bulletin de pesage
+
+**Phase 8 closed as deferred** (ADR-002). Packing-list (liste de colisage) import remains the V1 path. Bulletin import / weight-seal cross-check is out of V1 until stakeholders confirm a workflow and amend ADR-002.

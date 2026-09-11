@@ -104,6 +104,6 @@ Hold / Cancel are **not** available on mobile in V1 (**Phase 4 closed as deferre
 | Realtime | Desktop and mobile share one DB; updates visible without file exchange |
 | Offline | Important future consideration; not V1 requirement |
 | Import | Excel/CSV liste de colisage multi-file; Append or Replace; see import-format.md |
-| Bulletin de pesage | Deferred until stakeholders confirm (does not block V1 completion track) |
+| Bulletin de pesage | **Phase 8 closed as deferred** until stakeholders confirm (does not block V1 completion track) |
 | Market | DRC only |
 | Languages | Mandarin, English, French; **default `fr`**; switch on Settings; persist `profiles.preferred_locale` |
