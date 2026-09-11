@@ -39,7 +39,8 @@
     "react-native-screens": "~4.16.0",
     "react-native-web": "^0.21.2",
     "stacktrace-parser": "^0.1.11",
-    "zod": "^4.1.5"
+    "zod": "^4.1.5",
+    "@lures-dcs/i18n": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "~19.1.10",

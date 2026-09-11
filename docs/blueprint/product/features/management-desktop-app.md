@@ -27,13 +27,13 @@ Implemented (V1 slice):
 - Bulk management status actions from Loading: **Available / Hold / Cancel** only (intersection of allowed actions; reason required for hold/cancel). Management does not set Loading or Completed.
 - Packing-list import: multi-file liste de colisage (.xlsx/.csv), preview/validation, Append or Replace
 - Packing-list PDF export (TopNav Export): selected trucks on Loading and/or open truck detail; status printed on the sheet; audit action `exported`
+- i18n (zh / en / fr; default `fr`; Settings language switch; `profiles.preferred_locale`)
 - History: day picker for past loading lists/trucks (open liste de colisage detail) + filterable audit log (date range, action, actor, truck)
 - Stub pages for Reports, History, and Settings (sign out lives under Settings)
 
 Still TODO (ordered per ADR-002 V1 completion track):
 
 - User / permission management UI (matrix locked in ADR-002)
-- i18n (zh / en / fr; default `fr`; Settings switcher)
 - Reports — lean operational summaries only (not advanced analytics)
 - Send — OS mail/share of generated PDF (not WhatsApp/email automation; no `sent` status)
 

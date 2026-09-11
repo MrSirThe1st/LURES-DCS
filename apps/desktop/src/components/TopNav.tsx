@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import type { MessageKey } from '@lures-dcs/i18n';
+import { useLocale } from '../lib/locale';
 import {
   IconExport,
   IconHistory,
@@ -21,13 +23,13 @@ type TopNavProps = {
 
 const NAV_ITEMS: Array<{
   id: AppPage;
-  label: string;
+  labelKey: MessageKey;
   Icon: typeof IconLoading;
 }> = [
-  { id: 'loading', label: 'Loading', Icon: IconLoading },
-  { id: 'reports', label: 'Reports', Icon: IconReports },
-  { id: 'history', label: 'History', Icon: IconHistory },
-  { id: 'settings', label: 'Settings', Icon: IconSettings },
+  { id: 'loading', labelKey: 'nav.loading', Icon: IconLoading },
+  { id: 'reports', labelKey: 'nav.reports', Icon: IconReports },
+  { id: 'history', labelKey: 'nav.history', Icon: IconHistory },
+  { id: 'settings', labelKey: 'nav.settings', Icon: IconSettings },
 ];
 
 export function TopNav({
@@ -37,15 +39,18 @@ export function TopNav({
   onExport,
   onSend,
 }: TopNavProps) {
+  const { t } = useLocale();
+
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface">
       <nav
         className="flex h-14 items-center justify-between gap-space-md px-space-md"
-        aria-label="Main"
+        aria-label={t('nav.main')}
       >
         <div className="flex min-w-0 items-center gap-space-xs" role="list">
-          {NAV_ITEMS.map(({ id, label, Icon }) => {
+          {NAV_ITEMS.map(({ id, labelKey, Icon }) => {
             const active = activePage === id;
+            const label = t(labelKey);
             return (
               <button
                 key={id}
@@ -68,16 +73,16 @@ export function TopNav({
         </div>
 
         <div className="flex shrink-0 items-center gap-space-xs">
-          <IconActionButton label="Upload" onClick={onUpload}>
+          <IconActionButton label={t('nav.upload')} onClick={onUpload}>
             <IconUpload />
           </IconActionButton>
-          <IconActionButton label="Export" onClick={onExport}>
+          <IconActionButton label={t('nav.export')} onClick={onExport}>
             <IconExport />
           </IconActionButton>
-          <IconActionButton label="Send" onClick={onSend}>
+          <IconActionButton label={t('nav.send')} onClick={onSend}>
             <IconSend />
           </IconActionButton>
-          <IconActionButton label="Settings" onClick={() => onNavigate('settings')}>
+          <IconActionButton label={t('nav.settings')} onClick={() => onNavigate('settings')}>
             <IconSettings />
           </IconActionButton>
         </div>

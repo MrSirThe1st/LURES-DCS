@@ -14,6 +14,7 @@ import {
   todayDateIso,
   truckStatusLabel,
 } from '../lib/format';
+import { useLocale } from '../lib/locale';
 import { getSupabaseClient } from '../lib/supabase';
 
 type HistoryScreenProps = {
@@ -23,6 +24,7 @@ type HistoryScreenProps = {
 type HistoryTab = 'day' | 'audit';
 
 export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
+  const { t, locale } = useLocale();
   const [tab, setTab] = useState<HistoryTab>('day');
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(todayDateIso());
@@ -131,10 +133,8 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-space-md p-space-lg">
       <header className="flex flex-col gap-space-sm">
-        <h1 className="text-2xl font-semibold text-text-primary">History</h1>
-        <p className="text-base text-text-secondary">
-          Past loading days and filterable audit events. Today’s live work stays on Loading.
-        </p>
+        <h1 className="text-2xl font-semibold text-text-primary">{t('history.title')}</h1>
+        <p className="text-base text-text-secondary">{t('history.subtitle')}</p>
       </header>
 
       <div className="flex flex-wrap gap-space-sm">
@@ -197,11 +197,11 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
             {listLabel ? ` · ${listLabel}` : null}
           </p>
 
-          {dayLoading ? <p className="text-base text-text-secondary">Loading day…</p> : null}
+          {dayLoading ? <p className="text-base text-text-secondary">{t('history.loadingDay')}</p> : null}
           {dayError ? <p className="text-base text-destructive">{dayError}</p> : null}
 
           {!dayLoading && !dayError && (daySnapshot?.trucks.length ?? 0) === 0 ? (
-            <p className="text-base text-text-secondary">No trucks for this loading date.</p>
+            <p className="text-base text-text-secondary">{t('history.noTrucks')}</p>
           ) : null}
 
           {(daySnapshot?.trucks.length ?? 0) > 0 ? (
@@ -209,13 +209,13 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-background text-left text-text-secondary">
-                    <th className="px-space-sm py-space-sm font-semibold">Vehicle</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Trailer</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Driver</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Status</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Packing list</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Bags</th>
-                    <th className="px-space-sm py-space-sm font-semibold">Total</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.vehicle')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.trailer')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.driver')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.status')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.packingList')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.bags')}</th>
+                    <th className="px-space-sm py-space-sm font-semibold">{t('history.col.total')}</th>
                     <th className="px-space-sm py-space-sm font-semibold" />
                   </tr>
                 </thead>
@@ -232,7 +232,7 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
                         {truck.driver_name ?? '—'}
                       </td>
                       <td className="px-space-sm py-space-sm text-text-secondary">
-                        {truckStatusLabel(truck.status)}
+                        {truckStatusLabel(truck.status, locale)}
                       </td>
                       <td className="px-space-sm py-space-sm text-text-secondary">
                         {truck.packing_list_number ?? '—'}
@@ -289,7 +289,7 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
                 value={auditAction}
                 onChange={(event) => setAuditAction(event.target.value)}
               >
-                <option value="">All actions</option>
+                <option value="">{t('history.allActions')}</option>
                 {KNOWN_AUDIT_ACTIONS.map((action) => (
                   <option key={action} value={action}>
                     {action}
@@ -303,7 +303,7 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
                 type="text"
                 className="rounded-md border border-border bg-surface px-space-sm py-space-xs text-base text-text-primary"
                 value={auditActor}
-                placeholder="Display name"
+                placeholder={t('history.actorPlaceholder')}
                 onChange={(event) => setAuditActor(event.target.value)}
               />
             </label>
@@ -314,7 +314,7 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
                 value={auditTruckId}
                 onChange={(event) => setAuditTruckId(event.target.value)}
               >
-                <option value="">All trucks</option>
+                <option value="">{t('history.allTrucks')}</option>
                 {truckOptions.map((truck) => (
                   <option key={truck.id} value={truck.id}>
                     {truck.label}
@@ -324,14 +324,14 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
             </label>
             <div className="flex items-end">
               <Button type="button" onClick={() => void loadAudit()} disabled={auditLoading}>
-                {auditLoading ? 'Loading…' : 'Apply filters'}
+                {auditLoading ? t('history.loadingAudit') : t('history.applyFilters')}
               </Button>
             </div>
           </div>
 
           {auditError ? <p className="text-base text-destructive">{auditError}</p> : null}
           {!auditLoading && auditLoadedOnce && auditRows.length === 0 ? (
-            <p className="text-base text-text-secondary">No audit events match these filters.</p>
+            <p className="text-base text-text-secondary">{t('history.noAudit')}</p>
           ) : null}
 
           {auditRows.length > 0 ? (

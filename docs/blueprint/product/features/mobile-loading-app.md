@@ -22,10 +22,7 @@ Implemented (V1 slice):
 - Today’s trucks
 - Truck loading record + complete truck
 - Bag verification / modification with required reason on changes
-
-Still TODO (V1 completion track):
-
-- i18n (zh / en / fr; default `fr`; Settings switcher; `profiles.preferred_locale`)
+- i18n (zh / en / fr; default `fr`; Settings language switch; `profiles.preferred_locale`)
 
 Deferred / out of V1 completion track ([ADR-002](../../decisions/ADR-002.md)):
 

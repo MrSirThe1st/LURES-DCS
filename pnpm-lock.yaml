@@ -32,6 +32,9 @@ importers:
       '@lures-dcs/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@lures-dcs/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@lures-dcs/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -105,6 +108,9 @@ importers:
       '@lures-dcs/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@lures-dcs/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@lures-dcs/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -214,6 +220,15 @@ importers:
         version: 5.9.3
 
   packages/domain:
+    devDependencies:
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.0)
+
+  packages/i18n:
     devDependencies:
       typescript:
         specifier: ^5.9.2

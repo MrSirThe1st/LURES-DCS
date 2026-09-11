@@ -9,6 +9,7 @@ import {
   truckStatusLabel,
 } from '../lib/format';
 import { useOperationalRealtime } from '../lib/realtime';
+import { useLocale } from '../lib/locale';
 import { getSupabaseClient } from '../lib/supabase';
 
 type BagRow = Tables<'bags'>;
@@ -21,6 +22,7 @@ type TruckDetailScreenProps = {
 };
 
 export function TruckDetailScreen({ truckId, onBack }: TruckDetailScreenProps) {
+  const { locale, t } = useLocale();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [truck, setTruck] = useState<TruckRow | null>(null);
@@ -116,9 +118,9 @@ export function TruckDetailScreen({ truckId, onBack }: TruckDetailScreenProps) {
           </Button>
           {truck ? (
             <span className="text-sm text-text-secondary">
-              {truckStatusLabel(truck.status)}
+              {truckStatusLabel(truck.status, locale)}
               {' · '}
-              {live ? 'Live' : 'Connecting…'}
+              {live ? t('common.live') : t('common.connecting')}
               {lastSyncedAt ? ` · ${lastSyncedAt.toLocaleTimeString()}` : null}
             </span>
           ) : null}

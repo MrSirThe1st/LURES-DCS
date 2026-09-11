@@ -73,3 +73,10 @@ Format:
 - Description: Phase 4 closed as deferred — mobile Hold/Cancel remain management-only; added `canMobileTransitionTruckStatus` / `assertMobileTruckStatusTransition` and removed open mobile `setTruckStatus` helper
 - Impact: `packages/domain`, `apps/mobile/lib/operations.ts`, ADR-002, mobile feature + roles docs
 - Tests: passed (domain unit tests; mobile typecheck)
+
+## 2026-09-11
+
+- Type: Frontend | Mobile | Docs
+- Description: Phase 5 i18n — shared `@lures-dcs/i18n` catalogs (fr default, en, zh), Settings language switchers, persist `profiles.preferred_locale`
+- Impact: `packages/i18n`, desktop LocaleProvider/TopNav/Settings/Login/History/Reports, mobile LocaleProvider/Settings/login/index/truck
+- Tests: passed (i18n unit tests; desktop/mobile/domain typecheck)
