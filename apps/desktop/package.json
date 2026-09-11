@@ -23,6 +23,7 @@
     "@lures-dcs/utils": "workspace:*",
     "@supabase/supabase-js": "^2.57.4",
     "@tauri-apps/api": "^2.8.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "xlsx": "^0.18.5",

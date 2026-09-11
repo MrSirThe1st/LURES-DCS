@@ -68,3 +68,14 @@ export {
   parseLoadingDate,
   type BuildImportPreviewInput,
 } from './liste-de-colisage-parse.js';
+
+export {
+  exportBagSchema,
+  exportTruckRecordSchema,
+  exportResultSchema,
+  suggestExportFilename,
+  suggestBatchExportFilename,
+  type ExportBag,
+  type ExportTruckRecord,
+  type ExportResult,
+} from './export.js';
