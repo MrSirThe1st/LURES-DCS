@@ -1,4 +1,10 @@
 import type { TruckStatus } from '@lures-dcs/domain';
+import {
+  resolveAppLocale,
+  statusMessageKey,
+  translate,
+  type AppLocale,
+} from '@lures-dcs/i18n';
 
 export function todayDateIso(date = new Date()): string {
   const year = date.getFullYear();
@@ -12,15 +18,8 @@ export function formatWeightKg(value: number | null | undefined): string {
   return `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3 })} kg`;
 }
 
-const STATUS_LABELS: Record<TruckStatus, string> = {
-  waiting: 'Waiting',
-  available: 'Available',
-  loading: 'Loading',
-  completed: 'Completed',
-  on_hold: 'On Hold',
-  cancelled: 'Cancelled',
-};
-
-export function truckStatusLabel(status: TruckStatus | string): string {
-  return STATUS_LABELS[status as TruckStatus] ?? status;
+export function truckStatusLabel(status: TruckStatus | string, locale?: AppLocale): string {
+  const key = statusMessageKey(status);
+  if (key) return translate(resolveAppLocale(locale), key);
+  return status;
 }

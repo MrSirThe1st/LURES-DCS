@@ -4,6 +4,7 @@ import { ImportModal } from './components/ImportModal';
 import { OverlayCloseButton } from './components/OverlayCloseButton';
 import { TopNav, type AppPage } from './components/TopNav';
 import { AuthProvider, useAuth } from './lib/auth';
+import { LocaleProvider, useLocale } from './lib/locale';
 import { runPackingListExport } from './lib/export-packing-list';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { LoginScreen } from './screens/LoginScreen';
@@ -18,6 +19,7 @@ type Screen =
 
 function AuthenticatedApp() {
   const { loading, session, profile } = useAuth();
+  const { t } = useLocale();
   const [screen, setScreen] = useState<Screen>({ name: 'page', page: 'loading' });
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -78,7 +80,7 @@ function AuthenticatedApp() {
           : [];
 
     if (truckIds.length === 0) {
-      showActionNotice('Select one or more trucks on Loading, or open a truck, then Export.');
+      showActionNotice(t('export.selectTrucks'));
       return;
     }
 
@@ -91,22 +93,26 @@ function AuthenticatedApp() {
       });
       const statusNote =
         result.nonCompletedCount > 0
-          ? ` · ${result.nonCompletedCount} not completed (status shown on PDF)`
+          ? t('export.nonCompletedNote', { count: result.nonCompletedCount })
           : '';
       showActionNotice(
-        `Exported ${result.truckCount} truck(s) as PDF (${result.filename})${statusNote}.`,
+        t('export.done', {
+          count: result.truckCount,
+          filename: result.filename,
+          statusNote,
+        }),
       );
     } catch (err) {
-      showActionNotice(err instanceof Error ? err.message : 'Export failed.');
+      showActionNotice(err instanceof Error ? err.message : t('export.failed'));
     } finally {
       setExportBusy(false);
     }
-  }, [exportBusy, profile, screen, selectedTruckIds, showActionNotice]);
+  }, [exportBusy, profile, screen, selectedTruckIds, showActionNotice, t]);
 
   if (loading) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-md items-center p-space-lg">
-        <p className="text-base text-text-secondary">Restoring session…</p>
+        <p className="text-base text-text-secondary">{t('auth.restoringSession')}</p>
       </main>
     );
   }
@@ -124,7 +130,7 @@ function AuthenticatedApp() {
         onExport={() => {
           void handleExport();
         }}
-        onSend={() => showActionNotice('Send will be available in a later slice.')}
+        onSend={() => showActionNotice(t('export.sendLater'))}
       />
       {actionNotice ? (
         <>
@@ -177,7 +183,9 @@ function AuthenticatedApp() {
 export function App() {
   return (
     <AuthProvider>
-      <AuthenticatedApp />
+      <LocaleProvider>
+        <AuthenticatedApp />
+      </LocaleProvider>
     </AuthProvider>
   );
 }

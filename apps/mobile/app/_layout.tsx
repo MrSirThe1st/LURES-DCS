@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth';
+import { LocaleProvider, useLocale } from '../lib/locale';
 
 function AuthGate({ children }: { children: ReactNode }) {
   const { loading, session, profile } = useAuth();
@@ -43,25 +44,35 @@ function AuthGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function LocalizedStack() {
+  const { t } = useLocale();
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: nativeTheme.colors.surface },
+        headerTintColor: nativeTheme.colors.textPrimary,
+        contentStyle: { backgroundColor: nativeTheme.colors.background },
+        headerShadowVisible: false,
+      }}
+    >
+      <Stack.Screen name="index" options={{ title: t('mobile.todayTitle') }} />
+      <Stack.Screen name="login" options={{ title: t('common.signIn'), headerShown: false }} />
+      <Stack.Screen name="truck/[id]" options={{ title: t('mobile.truckTitle') }} />
+      <Stack.Screen name="bag/[id]" options={{ title: t('mobile.bagTitle') }} />
+      <Stack.Screen name="settings" options={{ title: t('mobile.settingsTitle') }} />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AuthGate>
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: nativeTheme.colors.surface },
-              headerTintColor: nativeTheme.colors.textPrimary,
-              contentStyle: { backgroundColor: nativeTheme.colors.background },
-              headerShadowVisible: false,
-            }}
-          >
-            <Stack.Screen name="index" options={{ title: "Today's trucks" }} />
-            <Stack.Screen name="login" options={{ title: 'Sign in', headerShown: false }} />
-            <Stack.Screen name="truck/[id]" options={{ title: 'Truck' }} />
-            <Stack.Screen name="bag/[id]" options={{ title: 'Bag' }} />
-          </Stack>
-        </AuthGate>
+        <LocaleProvider>
+          <AuthGate>
+            <LocalizedStack />
+          </AuthGate>
+        </LocaleProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

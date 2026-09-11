@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../lib/auth';
+import { useLocale } from '../lib/locale';
 import { formatWeightKg, todayDateIso, truckStatusLabel } from '../lib/format';
 import { getSupabaseClient } from '../lib/supabase';
 
@@ -27,6 +28,7 @@ type TruckListItem = {
 
 export default function TodayTrucksScreen() {
   const { profile, signOut } = useAuth();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,11 +94,14 @@ export default function TodayTrucksScreen() {
       <StatusBar style="dark" />
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.heading}>Today’s trucks</Text>
+          <Text style={styles.heading}>{t('mobile.todayTitle')}</Text>
           <Text style={styles.meta}>{profile?.display_name ?? 'Loading staff'}</Text>
         </View>
+        <Pressable onPress={() => router.push('/settings')} style={styles.secondaryButton}>
+          <Text style={styles.secondaryButtonText}>{t('mobile.openSettings')}</Text>
+        </Pressable>
         <Pressable onPress={() => void signOut()} style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Sign out</Text>
+          <Text style={styles.secondaryButtonText}>{t('mobile.signOut')}</Text>
         </Pressable>
       </View>
 
@@ -109,7 +114,7 @@ export default function TodayTrucksScreen() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {!loading && !error && trucks.length === 0 ? (
-        <Text style={styles.empty}>No trucks scheduled for today.</Text>
+        <Text style={styles.empty}>{t('mobile.noTrucks')}</Text>
       ) : null}
 
       <FlatList
@@ -127,7 +132,7 @@ export default function TodayTrucksScreen() {
             >
               <Text style={styles.truckId}>{item.vehicle_registration}</Text>
               <Text style={styles.meta}>
-                {truckStatusLabel(item.status)} · {verifiedCount}/{item.bags.length} verified ·{' '}
+                {truckStatusLabel(item.status, locale)} · {verifiedCount}/{item.bags.length} verified ·{' '}
                 {formatWeightKg(total)}
               </Text>
               <Text style={styles.meta}>{item.driver_name ?? 'No driver listed'}</Text>

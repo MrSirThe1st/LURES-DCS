@@ -10,9 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../lib/auth';
+import { useLocale } from '../lib/locale';
 
 export default function LoginScreen() {
   const { signIn, error } = useAuth();
+  const { t } = useLocale();
   const [email, setEmail] = useState('loading@lures.local');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +26,7 @@ export default function LoginScreen() {
     try {
       await signIn(email, password);
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : 'Sign-in failed');
+      setLocalError(err instanceof Error ? err.message : t('auth.invalidCredentials'));
     } finally {
       setSubmitting(false);
     }
@@ -36,11 +38,11 @@ export default function LoginScreen() {
     <View style={styles.safe}>
       <StatusBar style="dark" />
       <View style={styles.container}>
-        <Text style={styles.title}>LURES-DCS</Text>
-        <Text style={styles.subtitle}>Loading operations — sign in to verify today’s trucks.</Text>
+        <Text style={styles.title}>{t('app.name')}</Text>
+        <Text style={styles.subtitle}>{t('auth.mobileSignInSubtitle')}</Text>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{t('auth.email')}</Text>
           <TextInput
             autoCapitalize="none"
             autoCorrect={false}
@@ -52,13 +54,13 @@ export default function LoginScreen() {
             placeholderTextColor={nativeTheme.colors.textSecondary}
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>{t('auth.password')}</Text>
           <TextInput
             secureTextEntry
             value={password}
             onChangeText={setPassword}
             style={styles.input}
-            placeholder="Password"
+            placeholder={t('auth.password')}
             placeholderTextColor={nativeTheme.colors.textSecondary}
           />
 
@@ -75,7 +77,7 @@ export default function LoginScreen() {
             {submitting ? (
               <ActivityIndicator color={nativeTheme.colors.primaryForeground} />
             ) : (
-              <Text style={styles.buttonText}>Sign in</Text>
+              <Text style={styles.buttonText}>{t('common.signIn')}</Text>
             )}
           </Pressable>
         </View>

@@ -14,6 +14,7 @@ import { OverlayCloseButton } from '../components/OverlayCloseButton';
 import { useAuth } from '../lib/auth';
 import { formatDisplayDate, formatWeightKg, todayDateIso, truckStatusLabel } from '../lib/format';
 import { useOperationalRealtime } from '../lib/realtime';
+import { useLocale } from '../lib/locale';
 import { getSupabaseClient } from '../lib/supabase';
 
 type TruckListItem = {
@@ -54,6 +55,7 @@ type TodayOverviewScreenProps = {
 
 export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOverviewScreenProps) {
   const { profile } = useAuth();
+  const { locale, t } = useLocale();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trucks, setTrucks] = useState<TruckListItem[]>([]);
@@ -263,7 +265,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
 
     for (const truck of selectedTrucks) {
       if (!canTransitionTruckStatus(truck.status, to)) {
-        failures.push(`${truck.vehicle_registration}: cannot go to ${truckStatusLabel(to)}`);
+        failures.push(`${truck.vehicle_registration}: cannot go to ${truckStatusLabel(to, locale)}`);
         continue;
       }
       try {
@@ -288,7 +290,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
       setStatusReason('');
       setSelectedIds(new Set());
       setStatusNotice(
-        `Updated ${ok} truck(s) to ${truckStatusLabel(to)}${
+        `Updated ${ok} truck(s) to ${truckStatusLabel(to, locale)}${
           failures.length > 0 ? ` · ${failures.length} skipped/failed` : ''
         }.`,
       );
@@ -320,7 +322,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
       <section className="grid grid-cols-2 gap-space-md md:grid-cols-3 lg:grid-cols-6">
         {(Object.keys(EMPTY_COUNTS) as TruckStatus[]).map((status) => (
           <div key={status} className="border border-border bg-surface p-space-md">
-            <p className="text-sm text-text-secondary">{truckStatusLabel(status)}</p>
+            <p className="text-sm text-text-secondary">{truckStatusLabel(status, locale)}</p>
             <p className="text-2xl font-semibold text-text-primary">{counts[status]}</p>
           </div>
         ))}
@@ -390,7 +392,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                           disabled={disabled}
                           onClick={() => void applyStatus(to)}
                         >
-                          {statusBusy ? 'Updating…' : `Set ${truckStatusLabel(to)}`}
+                          {statusBusy ? 'Updating…' : `Set ${truckStatusLabel(to, locale)}`}
                         </Button>
                       );
                     })}
@@ -477,7 +479,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                       {formatWeightKg(total)}
                     </td>
                     <td className="px-space-md py-space-sm text-text-primary">
-                      {truckStatusLabel(truck.status)}
+                      {truckStatusLabel(truck.status, locale)}
                     </td>
                     <td className="px-space-md py-space-sm">
                       <LoadProgressCell

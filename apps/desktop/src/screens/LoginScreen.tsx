@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Button } from '@lures-dcs/ui';
 import { useAuth } from '../lib/auth';
+import { useLocale } from '../lib/locale';
 
 export function LoginScreen() {
   const { signIn, error } = useAuth();
+  const { t } = useLocale();
   const [email, setEmail] = useState('management@lures.local');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -16,7 +18,7 @@ export function LoginScreen() {
     try {
       await signIn(email, password);
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : 'Sign-in failed');
+      setLocalError(err instanceof Error ? err.message : t('auth.invalidCredentials'));
     } finally {
       setSubmitting(false);
     }
@@ -27,10 +29,8 @@ export function LoginScreen() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-space-lg p-space-lg">
       <div className="flex flex-col gap-space-sm">
-        <h1 className="text-2xl font-semibold text-text-primary">LURES-DCS</h1>
-        <p className="text-base text-text-secondary">
-          Management desktop — sign in to monitor today’s truck loading.
-        </p>
+        <h1 className="text-2xl font-semibold text-text-primary">{t('app.name')}</h1>
+        <p className="text-base text-text-secondary">{t('auth.signInSubtitle')}</p>
       </div>
 
       <form
@@ -38,7 +38,7 @@ export function LoginScreen() {
         className="flex w-full flex-col gap-space-md rounded-md border border-border bg-surface p-space-lg"
       >
         <label className="flex w-full flex-col gap-space-xs text-sm text-text-secondary">
-          Email
+          {t('auth.email')}
           <input
             type="email"
             autoComplete="username"
@@ -50,7 +50,7 @@ export function LoginScreen() {
         </label>
 
         <label className="flex w-full flex-col gap-space-xs text-sm text-text-secondary">
-          Password
+          {t('auth.password')}
           <input
             type="password"
             autoComplete="current-password"
@@ -64,7 +64,7 @@ export function LoginScreen() {
         {message ? <p className="text-sm text-destructive">{message}</p> : null}
 
         <Button type="submit" disabled={submitting} style={{ width: '100%' }}>
-          {submitting ? 'Signing in…' : 'Sign in'}
+          {submitting ? t('common.loading') : t('common.signIn')}
         </Button>
       </form>
     </main>

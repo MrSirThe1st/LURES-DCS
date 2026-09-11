@@ -21,6 +21,7 @@ type AuthState = {
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -127,6 +128,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    const supabase = getSupabaseClient();
+    const {
+      data: { session: current },
+    } = await supabase.auth.getSession();
+    if (!current?.user) {
+      setProfile(null);
+      return;
+    }
+    const nextProfile = await fetchProfile(current.user.id);
+    setProfile(nextProfile);
+  }, []);
+
   const value = useMemo<AuthState>(
     () => ({
       loading,
@@ -136,8 +150,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       error,
       signIn,
       signOut,
+      refreshProfile,
     }),
-    [loading, session, profile, error, signIn, signOut],
+    [loading, session, profile, error, signIn, signOut, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

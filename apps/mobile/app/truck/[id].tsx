@@ -20,6 +20,7 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../../lib/auth';
+import { useLocale } from '../../lib/locale';
 import { formatWeightKg, truckStatusLabel } from '../../lib/format';
 import { completeTruck } from '../../lib/operations';
 import { getSupabaseClient } from '../../lib/supabase';
@@ -31,6 +32,7 @@ export default function TruckDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { profile } = useAuth();
+  const { t, locale } = useLocale();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -110,7 +112,7 @@ export default function TruckDetailScreen() {
       {truck ? (
         <View style={styles.summary}>
           <Text style={styles.summaryTitle}>
-            {truckStatusLabel(truck.status)} · {verifiedCount}/{bags.length} bags ·{' '}
+            {truckStatusLabel(truck.status, locale)} · {verifiedCount}/{bags.length} bags ·{' '}
             {formatWeightKg(total)}
           </Text>
           <Text style={styles.meta}>{truck.driver_name ?? 'No driver listed'}</Text>
@@ -126,7 +128,7 @@ export default function TruckDetailScreen() {
               ]}
             >
               <Text style={styles.completeButtonText}>
-                {saving ? 'Completing…' : 'Complete truck'}
+                {saving ? t('common.loading') : t('mobile.completeTruck')}
               </Text>
             </Pressable>
           ) : null}
@@ -137,10 +139,10 @@ export default function TruckDetailScreen() {
             </Text>
           ) : null}
           {truck.status === TruckStatus.Available ? (
-            <Text style={styles.meta}>Available — verify the first bag to start Loading.</Text>
+            <Text style={styles.meta}>{t('mobile.availableHint')}</Text>
           ) : null}
           {truck.status === TruckStatus.OnHold ? (
-            <Text style={styles.meta}>On hold — management only; wait for release (mobile cannot Hold/Cancel).</Text>
+            <Text style={styles.meta}>{t('mobile.onHoldHint')}</Text>
           ) : null}
         </View>
       ) : null}
