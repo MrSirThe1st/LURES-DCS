@@ -43,7 +43,7 @@ Do not describe management as a web app, browser app, or web dashboard.
 | Management | Supervisors, managers, authorized office/administrative personnel |
 | Loading / operational staff | Personnel physically checking/loading trucks |
 
-Exact permission matrix: **TODO: define access scope**
+Permission matrix: **locked** in [ADR-002](../decisions/ADR-002.md) and [roles-and-flows.md](./roles-and-flows.md).
 
 ## MVP scope
 
@@ -55,8 +55,12 @@ Exact permission matrix: **TODO: define access scope**
 - Truck status and bag verification
 - Authorized edits with modification reasons where required
 - Real-time monitoring between applications
-- Audit history
-- Export/print of final records
+- Audit history / History screen
+- Export/print of final records (PDF)
+- Send via OS mail/share of PDF
+- User management (management role)
+- UI in Mandarin, English, and French (default French)
+- Lean operational Reports (counts / throughput — not advanced analytics)
 
 ### Out of scope (for V1 unless explicitly promoted)
 
@@ -66,16 +70,17 @@ Exact permission matrix: **TODO: define access scope**
 - Weight-scale integration
 - Public consumer app distribution
 - A browser-hosted management application
-- Analytics/monitoring products not yet required
+- Advanced analytics / BI products
+- Mobile Hold / Cancel (management-only in V1)
+- Automated WhatsApp / email
+- Bulletin de pesage import / cross-check (deferred until confirmed)
 
-### TBD
+### TBD (does not block V1 decision lock)
 
-- Exact import spreadsheet mapping
+- Exact import spreadsheet mapping refinements from live company exports
 - Final field list and approved copy in Mandarin, English, and French
-- Role/permission matrix
 - Production brand palette and typography
-- PDF layout fidelity to paper forms
-- Default UI language and language-switch behavior
+- Pixel-level PDF fidelity to paper forms
 
 ## Success metrics
 

@@ -28,13 +28,20 @@ Implemented (V1 slice):
 - Packing-list import: multi-file liste de colisage (.xlsx/.csv), preview/validation, Append or Replace
 - Stub pages for Reports, History, and Settings (sign out lives under Settings)
 
-Still TODO:
+Still TODO (ordered per ADR-002 V1 completion track):
 
-- Bulletin de pesage import / cross-check
-- Reports / analytics content
-- Full audit history views
-- User/permission management
-- Export / Send
+- Export / print (PDF from truck+bags; letterhead close to liste de colisage; audited)
+- Full History (past lists/days + filterable audit)
+- User / permission management UI (matrix locked in ADR-002)
+- i18n (zh / en / fr; default `fr`; Settings switcher)
+- Reports — lean operational summaries only (not advanced analytics)
+- Send — OS mail/share of generated PDF (not WhatsApp/email automation; no `sent` status)
+
+Deferred (not blocking V1 completion):
+
+- Bulletin de pesage import / cross-check (awaiting stakeholder confirmation)
+- View-only management sub-role
+- Production brand palette / typography
 
 ## Behaviors
 
@@ -47,6 +54,8 @@ Known from product knowledge:
 - Real-time visibility of mobile changes via the shared database
 - Authorized edits; important changes audited
 - Truck total weight derived from bag weights
+- Hold / Cancel are management-only; Management does not set Loading or Completed
+- Export/print and Send follow [ADR-002](../../decisions/ADR-002.md)
 
 ## Data
 
@@ -58,11 +67,12 @@ Desktop UI talks to Supabase with public credentials only (and Tauri native comm
 - Pixel-identical mobile clone
 - QR scanning as a V1 requirement
 - Hosting management in a browser
+- Automated WhatsApp / email sending
+- Advanced analytics / BI products
 
 ## Open questions
 
 - Exact overview columns and filters
 - Final company Excel export layout vs provisional import template
-- Permission matrix for edit vs view-only management users
-- PDF layout requirements
-- Default language and language-switch UX for Mandarin / English / French
+- Pixel-level PDF fidelity to paper (V1 ships structured letterhead layout; refine later)
+- Approved Mandarin / French domain terminology lists (locale UX is locked; glossary terms still TBD)

@@ -46,4 +46,4 @@ Also accepts `.xlsx` with the same sheet layout.
 5. Choose **Append** or **Replace**
 6. Confirm import
 
-Export that regenerates this exact company layout is not implemented yet.
+Export/print (V1, ADR-002): PDF generated from truck+bags with company letterhead close to this liste-de-colisage structure; print/save from desktop. Pixel-identical paper clone is not required on first ship. Excel/CSV remains the **import** path (optional report CSV may come later).

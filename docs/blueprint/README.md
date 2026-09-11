@@ -50,6 +50,7 @@ Root product knowledge (vision and requirements): [../../PROJECT_KNOWLEDGE.md](.
 | Document | Purpose |
 |----------|---------|
 | [decisions/ADR-001.md](./decisions/ADR-001.md) | Application boundaries and foundation stack |
+| [decisions/ADR-002.md](./decisions/ADR-002.md) | Phase 0 V1 decision lock (permissions, export, send, i18n, reports, deferrals) |
 
 ### Setup
 

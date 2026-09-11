@@ -36,18 +36,24 @@ TODO: define screen groups and redirect rules per application
 
 ## Authorization / role checks
 
-Conceptual roles:
+Roles:
 
-- Management
-- Loading / operational staff
+- Management (`management`) — desktop
+- Loading / operational staff (`loading_staff`) — mobile
 
-Permission matrix: **TODO: define access scope**
+Permission matrix: **locked** in [ADR-002](../blueprint/decisions/ADR-002.md) and [roles-and-flows.md](../blueprint/product/roles-and-flows.md).
+
+V1 highlights:
+
+- Hold / Cancel: management only
+- Export / Send / Reports / user admin: management only
+- Bag verify/edit + complete truck: loading staff
+- Locale: both roles may set `preferred_locale` (default `fr`)
 
 Enforce with:
 
 1. Trusted checks in use-cases
 2. Supabase Row Level Security policies
-
 ## Redirect rules
 
 TODO: define unauthenticated → login and unauthorized → safe fallback per app

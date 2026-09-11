@@ -62,7 +62,7 @@ pnpm --filter @lures-dcs/desktop dev:ui
 ## Market and languages
 
 - **Location:** DRC only
-- **Languages:** Mandarin, English, and French
+- **Languages:** Mandarin, English, and French (default UI: French — see [ADR-002](./docs/blueprint/decisions/ADR-002.md))
 
 ## Design tokens
 

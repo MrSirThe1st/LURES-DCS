@@ -39,9 +39,11 @@ The product must support **three languages**:
 - Keep domain terms consistent with [glossary.md](./glossary.md) across languages
 - Prefer plain language over marketing copy in every locale
 
-TODO: define default language, language-switch UX, and translation workflow  
-TODO: confirm approved terminology lists for Mandarin, English, and French
+**Default language:** French (`fr`) — locked in [ADR-002](../decisions/ADR-002.md).  
+**Switch UX:** Settings control on desktop and mobile; persist to `profiles.preferred_locale`.  
+**Translation workflow:** shared message catalogs; prefer glossary-confirmed terms; interim UI may mirror existing English operational wording until terminology lists are signed off.
 
+TODO: confirm approved terminology lists for Mandarin, English, and French
 ## Naming conventions
 
 | Context | Convention |
