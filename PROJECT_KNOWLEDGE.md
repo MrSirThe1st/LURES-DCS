@@ -940,7 +940,7 @@ Phase 0 locks for the V1 completion track are recorded in **`docs/blueprint/deci
 | Reports | Lean operational summaries only |
 | History | Past lists/days + filterable audit |
 | Mobile hold/cancel | **Out** of V1 (management-only) |
-| Bulletin de pesage | Deferred until stakeholders confirm |
+| Bulletin de pesage | **Phase 8 closed as deferred** until stakeholders confirm |
 | QR / barcode | Out of current execution plan |
 | Offline mobile | Future; keep architecture open |
 | Brand tokens | Keep current tokens until palette/fonts approved |
