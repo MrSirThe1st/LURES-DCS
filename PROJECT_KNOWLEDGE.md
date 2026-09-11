@@ -659,24 +659,23 @@ Internal company application with authenticated users.
 1. **Management**
 2. **Loading / operational staff**
 
-The exact role/permission model should be designed before implementation.
+The V1 role/permission matrix is **locked** in `docs/blueprint/decisions/ADR-002.md` (also mirrored in `docs/blueprint/product/roles-and-flows.md`).
 
-### Potential permissions (illustrative)
+### V1 permissions (summary)
 
-- View loading schedules
-- Create loading lists
-- Import data
-- Edit truck information
-- Edit bag information
-- Verify bags
-- Change truck status
-- Put truck on hold
-- Complete truck
-- View audit history
-- Export records
-- Manage users
+| Capability | Management | Loading staff |
+|------------|:----------:|:-------------:|
+| View loading schedules / today’s trucks | Yes | Yes (Waiting read-only) |
+| Create / import loading lists | Yes | No |
+| Edit truck / bag information (office) | As UI allows | Verify/edit bags with reason |
+| Change status Available / Hold / Cancel | Yes | No |
+| Complete truck | No | Yes |
+| View audit / History | Yes | Truck-level on mobile journey only |
+| Lean Reports | Yes | No |
+| Export / print / Send (OS PDF share) | Yes | No |
+| Manage users | Yes | No |
 
-**Do not assume every user should have all permissions.**
+**Do not assume every user should have all permissions.** Revising this matrix requires an ADR change.
 
 ---
 
@@ -732,7 +731,7 @@ The system contains operational company information; access must be controlled.
 - Secure file/document storage
 
 **Intended backend platform:** Supabase.  
-Do not implement security configuration until implementation phase begins with a defined permission model.
+V1 permission model is defined in ADR-002; enforce it with RLS and trusted use-case checks when extending features.
 
 The desktop UI bundle and the mobile app must never receive the Supabase **service-role** key. Privileged operations belong in trusted backend paths (Supabase with RLS, and/or Tauri native commands if later required).
 
@@ -926,26 +925,41 @@ When implementing:
 
 ---
 
-## 29. Open decisions (confirm before locking design)
+## 29. Decisions and open items
 
-The following items are intentionally deferred and must be confirmed with stakeholders before or during early implementation:
+Phase 0 locks for the V1 completion track are recorded in **`docs/blueprint/decisions/ADR-002.md`**. Do not re-open them in code without amending that ADR.
+
+### Locked (ADR-002)
+
+| Topic | Decision |
+|-------|----------|
+| Role/permission matrix | Two roles; Hold/Cancel management-only; see ADR-002 table |
+| Default UI language and switch | Default **French (`fr`)**; Settings switcher; `profiles.preferred_locale` |
+| Export / print | PDF from DB data; letterhead close to liste de colisage; Tauri print/save; audited |
+| Send | OS mail/share of PDF only — no WhatsApp/email automation; no `sent` status |
+| Reports | Lean operational summaries only |
+| History | Past lists/days + filterable audit |
+| Mobile hold/cancel | **Out** of V1 (management-only) |
+| Bulletin de pesage | Deferred until stakeholders confirm |
+| QR / barcode | Out of current execution plan |
+| Offline mobile | Future; keep architecture open |
+| Brand tokens | Keep current tokens until palette/fonts approved |
+| Geographic scope | DRC only |
+
+### Still open / refine during implementation
 
 | Topic | Status |
 |-------|--------|
 | Exact Excel/CSV import format and field mapping | Provisional format shipped; refine from live company exports |
-| Exact truck/bag field list and Mandarin / English / French terminology | Flexible pending document/workflow review |
-| Default UI language and language-switch behavior | Three languages required (Mandarin, English, French); details TBD |
-| Geographic scope | DRC only |
-| Role/permission matrix | To be designed before implementation |
-| Truck status naming and allowed transitions | Conceptual only; refine later |
-| Audit event model | Design during implementation |
+| Exact truck/bag field list and Mandarin / English / French terminology | Flexible pending glossary sign-off |
+| Truck status naming and allowed transitions | Implemented transitions are authoritative; rename only with care |
+| Audit event model | Extend as Export/History/Users ship; keep immutable |
 | Validation rules (weights, duplicate seals, etc.) | Do not invent company-specific rules early |
-| Offline mobile sync/conflict strategy | Future consideration; keep architecture open |
-| PDF layout vs paper resemblance | Output later; DB remains source of truth |
+| PDF layout vs paper resemblance | Structured letterhead first; pixel fidelity later |
 | Mobile distribution method | Later deployment concern |
 | Desktop UI library / state management | Not locked beyond Tauri 2 |
 | Long-term mobile framework | Current starting point is Expo; confirm before a switch |
-| Deployment / CI/CD | Not defined |
+| Deployment / CI/CD | Not defined (Phase 9 engineering track) |
 
 ---
 
@@ -965,4 +979,4 @@ The following items are intentionally deferred and must be confirmed with stakeh
 
 ---
 
-*End of project knowledge document. This file should be updated when stakeholders confirm deferred decisions; until then, treat deferred items as open rather than inventing answers.*
+*End of project knowledge document. Locked V1 decisions live in ADR-002; remaining open items in §29 must not be invented silently — confirm or follow ADR-002 defaults.*

@@ -12,11 +12,11 @@ Concise operating manual for AI coding agents on this repository.
 | Mobile loading app (`apps/mobile`) | Loading / operational staff | Find today’s trucks, verify bags, record authorized changes, complete trucks |
 
 **Market:** DRC only.  
-**Languages:** Mandarin, English, and French (all required).
+**Languages:** Mandarin, English, and French (all required). Default UI language: French (`fr`) — see [ADR-002](../decisions/ADR-002.md).
 
 **Core entities (conceptual):** User, Organization, Loading List, Truck, Bag, Driver, Transporter, Loading Operation, Audit Event, Attachment/Document.
 
-Do **not** work outside this product scope. Do not invent entities, roles, workflows, or permissions that are not documented in `docs/` or `PROJECT_KNOWLEDGE.md`. Do not drop or ignore a required language when implementing user-facing copy.
+Do **not** work outside this product scope. Do not invent entities, roles, workflows, or permissions that are not documented in `docs/` or `PROJECT_KNOWLEDGE.md`. Do not drop or ignore a required language when implementing user-facing copy. Follow [ADR-002](../decisions/ADR-002.md) for V1 permission, export, send, i18n, and deferral locks.
 
 Do **not** introduce a web/browser management client. Do not describe the product as requiring a monorepo architecture.
 

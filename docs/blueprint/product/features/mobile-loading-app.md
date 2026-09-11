@@ -23,11 +23,15 @@ Implemented (V1 slice):
 - Truck loading record + complete truck
 - Bag verification / modification with required reason on changes
 
-Still TODO:
+Still TODO (V1 completion track):
 
-- Hold/cancel flows
+- i18n (zh / en / fr; default `fr`; Settings switcher; `profiles.preferred_locale`)
+
+Deferred / out of V1 completion track ([ADR-002](../../decisions/ADR-002.md)):
+
+- Hold/cancel on mobile — **management-only in V1**; do not implement on mobile unless ADR-002 is revised
 - Offline mode
-- QR/barcode truck open
+- QR/barcode truck open (explicitly excluded from current execution plan)
 
 ## Behaviors
 
@@ -39,7 +43,8 @@ Known from product knowledge:
 - Trucks are read-only on mobile until management marks **Available**
 - Controlled truck status transitions with audit (`available → loading` on first bag verify/edit; complete only from `loading`)
 - Real-time sync with the desktop management application through Supabase
-- QR/barcode truck open: future feature
+- Loading staff do **not** Hold / Cancel trucks in V1
+- QR/barcode truck open: future feature (not in current scope)
 
 ## Data
 
@@ -50,11 +55,12 @@ Screen → UI/state → query/mutation layer → API/backend boundary. No privil
 - Full offline-first mode in V1 (architecture must not forbid it later)
 - Making mobile identical to the desktop layout
 - Public app-store consumer positioning
+- QR/barcode as a V1 requirement
+- Mobile hold/cancel (unless ADR-002 revised)
 
 ## Open questions
 
 - Exact truck search/filter UX
 - Which bag fields operators may edit
-- Hold/cancel permissions for mobile users
 - Offline conflict strategy (future)
-- Default language and language-switch UX for Mandarin / English / French
+- Approved Mandarin / French domain terminology lists (locale UX is locked; glossary terms still TBD)

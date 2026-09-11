@@ -45,3 +45,10 @@ Format:
 - Impact: `packages/domain`, `packages/data-access/src/truck-status.ts`, desktop truck detail, mobile truck/operations
 - Tests: passed (domain unit tests, desktop/mobile typecheck, status transition smoke test)
 
+## 2026-09-11
+
+- Type: Docs
+- Description: Phase 0 V1 decision lock (ADR-002) — permission matrix, export/print PDF, Send = OS mail/share, default locale `fr`, lean Reports, History scope, mobile hold/cancel deferred, bulletin deferred, QR out of plan
+- Impact: `docs/blueprint/decisions/ADR-002.md`, roles-and-flows, overview, brand, feature docs, auth/import setup, PROJECT_KNOWLEDGE §17/§29, blueprint README
+- Tests: N/A (documentation only)
+
