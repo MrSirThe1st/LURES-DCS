@@ -80,3 +80,10 @@ Format:
 - Description: Phase 5 i18n — shared `@lures-dcs/i18n` catalogs (fr default, en, zh), Settings language switchers, persist `profiles.preferred_locale`
 - Impact: `packages/i18n`, desktop LocaleProvider/TopNav/Settings/Login/History/Reports, mobile LocaleProvider/Settings/login/index/truck
 - Tests: passed (i18n unit tests; desktop/mobile/domain typecheck)
+
+## 2026-09-11
+
+- Type: Docs
+- Description: Phase 8 closed as deferred — bulletin de pesage import/cross-check stays out of V1 until stakeholder confirmation; schema hints may remain; no bulletin UX
+- Impact: ADR-002, management feature, overview, roles, glossary, import-format
+- Tests: N/A (documentation only)

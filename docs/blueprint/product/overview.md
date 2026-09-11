@@ -73,7 +73,7 @@ Permission matrix: **locked** in [ADR-002](../decisions/ADR-002.md) and [roles-a
 - Advanced analytics / BI products
 - Mobile Hold / Cancel (management-only in V1)
 - Automated WhatsApp / email
-- Bulletin de pesage import / cross-check (deferred until confirmed)
+- Bulletin de pesage import / cross-check (**Phase 8 closed as deferred** until confirmed)
 
 ### TBD (does not block V1 decision lock)
 

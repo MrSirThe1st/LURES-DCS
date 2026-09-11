@@ -8,7 +8,7 @@ Entity glossary from documented product knowledge. Meanings stay conceptual unti
 | Organization | Company / org context | TODO | Multi-org TBD |
 | Packing list (bundle) | Daily bulletin group of trucks / listes de colisage | `loading_lists` | Bulletin ref in `packing_list_number` |
 | Liste de colisage | Per-truck packing sheet (header + bags) | one `trucks` + `bags` | Lot NO → `trucks.packing_list_number` |
-| Bulletin de pesage | Daily summary of trucks for a packing list | informs `loading_lists` | Optional import later |
+| Bulletin de pesage | Daily summary of trucks for a packing list | informs `loading_lists` | Optional import later — **Phase 8 deferred** |
 | Loading List | Synonym for packing-list bundle for a date | `loading_lists` | Prefer this operational name in UI when helpful |
 | Truck | Operational loading record for one vehicle load | `trucks` | Not a PDF |
 | Bag | Individual bag/unit with number, net weight, seal | `bags` | Per-truck children |
