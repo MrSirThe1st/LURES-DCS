@@ -1,5 +1,9 @@
 import { transitionTruckStatus, type Tables } from '@lures-dcs/data-access';
-import { TruckStatus, canMobileWorkOnTruck } from '@lures-dcs/domain';
+import {
+  TruckStatus,
+  assertMobileTruckStatusTransition,
+  canMobileWorkOnTruck,
+} from '@lures-dcs/domain';
 import { getSupabaseClient } from './supabase';
 
 export type Profile = Tables<'profiles'>;
@@ -132,6 +136,7 @@ export async function saveBagVerification(input: BagUpdateInput): Promise<void> 
   }
 
   if (truck.status === TruckStatus.Available) {
+    assertMobileTruckStatusTransition(TruckStatus.Available, TruckStatus.Loading);
     await transitionTruckStatus({
       client: supabase,
       truckId: truck.id,
@@ -144,6 +149,7 @@ export async function saveBagVerification(input: BagUpdateInput): Promise<void> 
 }
 
 export async function completeTruck(truck: Truck, profile: Profile): Promise<void> {
+  assertMobileTruckStatusTransition(truck.status, TruckStatus.Completed);
   await transitionTruckStatus({
     client: getSupabaseClient(),
     truckId: truck.id,
@@ -151,21 +157,5 @@ export async function completeTruck(truck: Truck, profile: Profile): Promise<voi
     to: TruckStatus.Completed,
     actor: profile,
     reason: 'Truck loading completed',
-  });
-}
-
-export async function setTruckStatus(
-  truck: Truck,
-  profile: Profile,
-  to: Truck['status'],
-  reason?: string,
-): Promise<void> {
-  await transitionTruckStatus({
-    client: getSupabaseClient(),
-    truckId: truck.id,
-    from: truck.status,
-    to,
-    actor: profile,
-    reason,
   });
 }

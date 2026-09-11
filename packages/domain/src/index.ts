@@ -86,6 +86,24 @@ export function canMobileWorkOnTruck(status: TruckStatus): boolean {
   return status === TruckStatus.Available || status === TruckStatus.Loading;
 }
 
+/**
+ * Mobile-allowed status transitions (ADR-002 / Phase 4).
+ * Hold / Cancel stay management-only on desktop.
+ */
+export function canMobileTransitionTruckStatus(from: TruckStatus, to: TruckStatus): boolean {
+  if (from === TruckStatus.Available && to === TruckStatus.Loading) return true;
+  if (from === TruckStatus.Loading && to === TruckStatus.Completed) return true;
+  return false;
+}
+
+/** Throws when mobile attempts a status change outside the floor-allowed set. */
+export function assertMobileTruckStatusTransition(from: TruckStatus, to: TruckStatus): void {
+  if (!canMobileTransitionTruckStatus(from, to)) {
+    throw new InvalidTruckStatusTransitionError(from, to);
+  }
+  assertTruckStatusTransition(from, to);
+}
+
 /** Hold/cancel require an operational reason. */
 export function requiresTruckStatusChangeReason(to: TruckStatus): boolean {
   return to === TruckStatus.OnHold || to === TruckStatus.Cancelled;

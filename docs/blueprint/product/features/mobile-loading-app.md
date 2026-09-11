@@ -29,7 +29,7 @@ Still TODO (V1 completion track):
 
 Deferred / out of V1 completion track ([ADR-002](../../decisions/ADR-002.md)):
 
-- Hold/cancel on mobile — **management-only in V1**; do not implement on mobile unless ADR-002 is revised
+- Hold/cancel on mobile — **Phase 4 closed as deferred** (management-only in V1); enforced by `canMobileTransitionTruckStatus` / `assertMobileTruckStatusTransition`; do not implement unless ADR-002 is revised
 - Offline mode
 - QR/barcode truck open (explicitly excluded from current execution plan)
 

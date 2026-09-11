@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   TruckStatus,
   calculateTruckTotalWeightKg,
+  canMobileTransitionTruckStatus,
   canMobileWorkOnTruck,
   canTransitionTruckStatus,
   getAllowedTruckStatusTransitions,
   getManagementTruckStatusActions,
   getTruckLoadIndicator,
   requiresTruckStatusChangeReason,
+  assertMobileTruckStatusTransition,
   assertTruckStatusTransition,
   InvalidTruckStatusTransitionError,
 } from './index.js';
@@ -64,6 +66,28 @@ describe('canMobileWorkOnTruck', () => {
     expect(canMobileWorkOnTruck(TruckStatus.Available)).toBe(true);
     expect(canMobileWorkOnTruck(TruckStatus.Loading)).toBe(true);
     expect(canMobileWorkOnTruck(TruckStatus.Waiting)).toBe(false);
+  });
+});
+
+describe('canMobileTransitionTruckStatus', () => {
+  it('allows available → loading and loading → completed only', () => {
+    expect(canMobileTransitionTruckStatus(TruckStatus.Available, TruckStatus.Loading)).toBe(true);
+    expect(canMobileTransitionTruckStatus(TruckStatus.Loading, TruckStatus.Completed)).toBe(true);
+  });
+
+  it('rejects hold and cancel from the floor', () => {
+    expect(canMobileTransitionTruckStatus(TruckStatus.Loading, TruckStatus.OnHold)).toBe(false);
+    expect(canMobileTransitionTruckStatus(TruckStatus.Loading, TruckStatus.Cancelled)).toBe(false);
+    expect(canMobileTransitionTruckStatus(TruckStatus.Available, TruckStatus.OnHold)).toBe(false);
+    expect(canMobileTransitionTruckStatus(TruckStatus.Available, TruckStatus.Cancelled)).toBe(false);
+  });
+});
+
+describe('assertMobileTruckStatusTransition', () => {
+  it('throws for mobile hold attempts', () => {
+    expect(() =>
+      assertMobileTruckStatusTransition(TruckStatus.Loading, TruckStatus.OnHold),
+    ).toThrow(InvalidTruckStatusTransitionError);
   });
 });
 
