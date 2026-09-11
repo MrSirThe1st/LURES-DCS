@@ -26,11 +26,11 @@ Implemented (V1 slice):
 - Realtime refresh for trucks/bags/audit (Live indicator; no manual refresh required)
 - Bulk management status actions from Loading: **Available / Hold / Cancel** only (intersection of allowed actions; reason required for hold/cancel). Management does not set Loading or Completed.
 - Packing-list import: multi-file liste de colisage (.xlsx/.csv), preview/validation, Append or Replace
+- Packing-list PDF export (TopNav Export): selected trucks on Loading and/or open truck detail; status printed on the sheet; audit action `exported`
 - Stub pages for Reports, History, and Settings (sign out lives under Settings)
 
 Still TODO (ordered per ADR-002 V1 completion track):
 
-- Export / print (PDF from truck+bags; letterhead close to liste de colisage; audited)
 - Full History (past lists/days + filterable audit)
 - User / permission management UI (matrix locked in ADR-002)
 - i18n (zh / en / fr; default `fr`; Settings switcher)

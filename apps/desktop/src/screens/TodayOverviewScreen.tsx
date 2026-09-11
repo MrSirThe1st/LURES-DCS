@@ -49,9 +49,10 @@ const ALL_STATUSES: TruckStatus[] = [
 
 type TodayOverviewScreenProps = {
   onOpenTruck: (truckId: string) => void;
+  onSelectionChange?: (truckIds: string[]) => void;
 };
 
-export function TodayOverviewScreen({ onOpenTruck }: TodayOverviewScreenProps) {
+export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOverviewScreenProps) {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,10 @@ export function TodayOverviewScreen({ onOpenTruck }: TodayOverviewScreenProps) {
   const [panelTrucks, setPanelTrucks] = useState<TruckListItem[]>([]);
   const [infoTruckId, setInfoTruckId] = useState<string | null>(null);
   const dateIso = todayDateIso();
+
+  useEffect(() => {
+    onSelectionChange?.([...selectedIds]);
+  }, [selectedIds, onSelectionChange]);
 
   const load = useCallback(async (mode: 'initial' | 'silent' = 'initial') => {
     if (mode === 'initial') setLoading(true);

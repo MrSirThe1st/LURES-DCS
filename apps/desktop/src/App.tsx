@@ -4,6 +4,7 @@ import { ImportModal } from './components/ImportModal';
 import { OverlayCloseButton } from './components/OverlayCloseButton';
 import { TopNav, type AppPage } from './components/TopNav';
 import { AuthProvider, useAuth } from './lib/auth';
+import { runPackingListExport } from './lib/export-packing-list';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { LoginScreen } from './screens/LoginScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
@@ -21,6 +22,8 @@ function AuthenticatedApp() {
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [overviewRefreshKey, setOverviewRefreshKey] = useState(0);
+  const [selectedTruckIds, setSelectedTruckIds] = useState<string[]>([]);
+  const [exportBusy, setExportBusy] = useState(false);
   const noticeTimerRef = useRef<number | null>(null);
 
   const activePage: AppPage = screen.name === 'truck' ? 'loading' : screen.page;
@@ -40,7 +43,7 @@ function AuthenticatedApp() {
       noticeTimerRef.current = window.setTimeout(() => {
         setActionNotice(null);
         noticeTimerRef.current = null;
-      }, 4000);
+      }, 5000);
     },
     [clearActionNotice],
   );
@@ -64,6 +67,42 @@ function AuthenticatedApp() {
     [showActionNotice],
   );
 
+  const handleExport = useCallback(async () => {
+    if (!profile || exportBusy) return;
+
+    const truckIds =
+      screen.name === 'truck'
+        ? [screen.truckId]
+        : selectedTruckIds.length > 0
+          ? selectedTruckIds
+          : [];
+
+    if (truckIds.length === 0) {
+      showActionNotice('Select one or more trucks on Loading, or open a truck, then Export.');
+      return;
+    }
+
+    setExportBusy(true);
+    try {
+      const result = await runPackingListExport({
+        truckIds,
+        actor: { id: profile.id, display_name: profile.display_name },
+        print: true,
+      });
+      const statusNote =
+        result.nonCompletedCount > 0
+          ? ` · ${result.nonCompletedCount} not completed (status shown on PDF)`
+          : '';
+      showActionNotice(
+        `Exported ${result.truckCount} truck(s) as PDF (${result.filename})${statusNote}.`,
+      );
+    } catch (err) {
+      showActionNotice(err instanceof Error ? err.message : 'Export failed.');
+    } finally {
+      setExportBusy(false);
+    }
+  }, [exportBusy, profile, screen, selectedTruckIds, showActionNotice]);
+
   if (loading) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-md items-center p-space-lg">
@@ -82,7 +121,9 @@ function AuthenticatedApp() {
         activePage={activePage}
         onNavigate={navigate}
         onUpload={() => setImportOpen(true)}
-        onExport={() => showActionNotice('Export will be available in a later slice.')}
+        onExport={() => {
+          void handleExport();
+        }}
         onSend={() => showActionNotice('Send will be available in a later slice.')}
       />
       {actionNotice ? (
@@ -113,6 +154,7 @@ function AuthenticatedApp() {
           <TodayOverviewScreen
             key={overviewRefreshKey}
             onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId })}
+            onSelectionChange={setSelectedTruckIds}
           />
         ) : null}
         {screen.name === 'page' && screen.page === 'reports' ? <ReportsScreen /> : null}

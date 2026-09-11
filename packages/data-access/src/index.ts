@@ -69,3 +69,11 @@ export {
   type ImportActor,
   type ImportLoadingListBundleInput,
 } from './import-loading-list.js';
+
+export {
+  fetchTrucksForExport,
+  recordTruckExportAudit,
+  type ExportActor,
+  type FetchTrucksForExportInput,
+  type RecordTruckExportAuditInput,
+} from './export-trucks.js';
