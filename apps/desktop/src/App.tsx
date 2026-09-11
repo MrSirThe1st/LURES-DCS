@@ -14,7 +14,7 @@ import { TruckDetailScreen } from './screens/TruckDetailScreen';
 
 type Screen =
   | { name: 'page'; page: AppPage }
-  | { name: 'truck'; truckId: string };
+  | { name: 'truck'; truckId: string; from: AppPage };
 
 function AuthenticatedApp() {
   const { loading, session, profile } = useAuth();
@@ -26,7 +26,7 @@ function AuthenticatedApp() {
   const [exportBusy, setExportBusy] = useState(false);
   const noticeTimerRef = useRef<number | null>(null);
 
-  const activePage: AppPage = screen.name === 'truck' ? 'loading' : screen.page;
+  const activePage: AppPage = screen.name === 'truck' ? screen.from : screen.page;
 
   const clearActionNotice = useCallback(() => {
     if (noticeTimerRef.current != null) {
@@ -147,18 +147,22 @@ function AuthenticatedApp() {
         {screen.name === 'truck' ? (
           <TruckDetailScreen
             truckId={screen.truckId}
-            onBack={() => setScreen({ name: 'page', page: 'loading' })}
+            onBack={() => setScreen({ name: 'page', page: screen.from })}
           />
         ) : null}
         {screen.name === 'page' && screen.page === 'loading' ? (
           <TodayOverviewScreen
             key={overviewRefreshKey}
-            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId })}
+            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId, from: 'loading' })}
             onSelectionChange={setSelectedTruckIds}
           />
         ) : null}
         {screen.name === 'page' && screen.page === 'reports' ? <ReportsScreen /> : null}
-        {screen.name === 'page' && screen.page === 'history' ? <HistoryScreen /> : null}
+        {screen.name === 'page' && screen.page === 'history' ? (
+          <HistoryScreen
+            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId, from: 'history' })}
+          />
+        ) : null}
         {screen.name === 'page' && screen.page === 'settings' ? <SettingsScreen /> : null}
       </div>
       <ImportModal
