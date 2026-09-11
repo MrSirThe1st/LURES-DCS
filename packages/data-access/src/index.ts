@@ -77,3 +77,15 @@ export {
   type FetchTrucksForExportInput,
   type RecordTruckExportAuditInput,
 } from './export-trucks.js';
+
+export {
+  listHistoryLoadingDates,
+  fetchHistoryDay,
+  fetchAuditHistory,
+  KNOWN_AUDIT_ACTIONS,
+  type HistoryLoadingList,
+  type HistoryTruckRow,
+  type HistoryDaySnapshot,
+  type AuditHistoryFilters,
+  type AuditHistoryRow,
+} from './history.js';

@@ -59,3 +59,10 @@ Format:
 - Description: Phase 1 Export/print — packing-list PDF from selected/open trucks, download+print, `exported` audit events
 - Impact: `packages/api-contracts/src/export.ts`, `packages/data-access/src/export-trucks.ts`, `apps/desktop/src/lib/{packing-list-pdf,save-pdf,export-packing-list}.ts`, `App.tsx`, TodayOverview selection lift, feature/setup docs
 - Tests: passed (`api-contracts` export unit tests; desktop/data-access/api-contracts typecheck)
+
+## 2026-09-11
+
+- Type: Frontend | API | Docs
+- Description: Phase 2 History — past loading days with truck drill-in and filterable audit log
+- Impact: `packages/data-access/src/history.ts`, `apps/desktop/src/screens/HistoryScreen.tsx`, App truck return navigation (`from` page), feature docs
+- Tests: passed (data-access + desktop typecheck)
