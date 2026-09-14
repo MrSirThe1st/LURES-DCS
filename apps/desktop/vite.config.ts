@@ -10,6 +10,11 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   envDir: repoRoot,
+  resolve: {
+    alias: {
+      '@lures-dcs/i18n': path.resolve(repoRoot, 'packages/i18n/src/index.ts'),
+    },
+  },
   clearScreen: false,
   server: {
     port: 1420,

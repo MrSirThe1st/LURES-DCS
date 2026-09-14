@@ -8,10 +8,12 @@ import { LocaleProvider, useLocale } from './lib/locale';
 import { runPackingListExport } from './lib/export-packing-list';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { LoginScreen } from './screens/LoginScreen';
+import { PreAlertsScreen } from './screens/PreAlertsScreen';
 import { ReportsScreen } from './screens/ReportsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { TodayOverviewScreen } from './screens/TodayOverviewScreen';
 import { TruckDetailScreen } from './screens/TruckDetailScreen';
+import { YardScreen } from './screens/YardScreen';
 
 type Screen =
   | { name: 'page'; page: AppPage }
@@ -20,7 +22,7 @@ type Screen =
 function AuthenticatedApp() {
   const { loading, session, profile } = useAuth();
   const { t } = useLocale();
-  const [screen, setScreen] = useState<Screen>({ name: 'page', page: 'loading' });
+  const [screen, setScreen] = useState<Screen>({ name: 'page', page: 'yard' });
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [overviewRefreshKey, setOverviewRefreshKey] = useState(0);
@@ -58,12 +60,16 @@ function AuthenticatedApp() {
     (result: ImportResult) => {
       setOverviewRefreshKey((key) => key + 1);
       setScreen({ name: 'page', page: 'loading' });
+      const attached =
+        result.trucks_attached && result.trucks_attached > 0
+          ? ` · packing lists on ${result.trucks_attached}`
+          : '';
       const removed =
         result.trucks_removed && result.trucks_removed > 0
           ? ` · removed ${result.trucks_removed}`
           : '';
       showActionNotice(
-        `Imported ${result.trucks_created} truck(s), ${result.bags_created} bag(s) (${result.mode})${removed}.`,
+        `Imported ${result.trucks_created} truck(s)${attached}, ${result.bags_created} bag(s) (${result.mode})${removed}.`,
       );
     },
     [showActionNotice],
@@ -154,6 +160,16 @@ function AuthenticatedApp() {
           <TruckDetailScreen
             truckId={screen.truckId}
             onBack={() => setScreen({ name: 'page', page: screen.from })}
+          />
+        ) : null}
+        {screen.name === 'page' && screen.page === 'prealerts' ? (
+          <PreAlertsScreen
+            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId, from: 'prealerts' })}
+          />
+        ) : null}
+        {screen.name === 'page' && screen.page === 'yard' ? (
+          <YardScreen
+            onOpenTruck={(truckId) => setScreen({ name: 'truck', truckId, from: 'yard' })}
           />
         ) : null}
         {screen.name === 'page' && screen.page === 'loading' ? (

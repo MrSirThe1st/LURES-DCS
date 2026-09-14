@@ -12,8 +12,10 @@ Paper packing/loading lists create transcription errors, weak auditability, lost
 
 Two dedicated company applications share one Supabase-backed operational database:
 
-- **Desktop (management)** monitors and administers daily loading
-- **Mobile (loading operations)** verifies bags and records authorized changes in the field
+- **Desktop (management)** imports Loading Orders, monitors the yard (expected / arrived / did not arrive), imports Loading Program / BP (or assigns program days as a bridge), and administers daily loading
+- **Mobile** is used by loading-floor staff (bags) and by the yard agent (confirm expected arrivals; register unplanned arrivals)
+
+Generated PDF/paper documents are outputs of structured data, not the primary store.
 
 Generated PDF/paper documents are outputs of structured data, not the primary store.
 
@@ -32,7 +34,7 @@ There is no separate copy of truck/loading data per application. The database is
 | Surface | Path | Notes |
 |---------|------|-------|
 | Management desktop app | `apps/desktop` | Dedicated Tauri 2 application for supervisors/office staff |
-| Mobile loading app | `apps/mobile` | Dedicated Expo app for loading-floor operators |
+| Mobile loading app | `apps/mobile` | Dedicated Expo app for loading-floor operators and the yard agent |
 
 Do not describe management as a web app, browser app, or web dashboard.
 
@@ -42,6 +44,7 @@ Do not describe management as a web app, browser app, or web dashboard.
 |------|-------------|
 | Management | Supervisors, managers, authorized office/administrative personnel |
 | Loading / operational staff | Personnel physically checking/loading trucks |
+| Yard agent | Personnel who register trucks when they arrive (phone; same mobile app) |
 
 Permission matrix: **locked** in [ADR-002](../decisions/ADR-002.md) and [roles-and-flows.md](./roles-and-flows.md).
 
@@ -51,7 +54,10 @@ Permission matrix: **locked** in [ADR-002](../decisions/ADR-002.md) and [roles-a
 
 - Authentication
 - Daily loading management and truck/bag operational records
-- Import/create loading lists (Excel/CSV) once format is confirmed
+- Import Loading Orders (pre-alerts) as expected trucks
+- Import Loading Program / BP (company Excel/CSV) and export the company BP layout
+- Import/create packing lists (Excel/CSV) once format is confirmed
+- Yard confirmation of expected trucks; unplanned arrivals when the plate is not on a pre-alert
 - Truck status and bag verification
 - Authorized edits with modification reasons where required
 - Real-time monitoring between applications
@@ -73,7 +79,6 @@ Permission matrix: **locked** in [ADR-002](../decisions/ADR-002.md) and [roles-a
 - Advanced analytics / BI products
 - Mobile Hold / Cancel (management-only in V1)
 - Automated WhatsApp / email
-- Bulletin de pesage import / cross-check (**Phase 8 closed as deferred** until confirmed)
 
 ### TBD (does not block V1 decision lock)
 

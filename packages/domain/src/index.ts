@@ -6,6 +6,7 @@
 export const UserRole = {
   Management: 'management',
   LoadingStaff: 'loading_staff',
+  YardAgent: 'yard_agent',
 } as const;
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
@@ -42,6 +43,127 @@ export const LoadingListStatus = {
 } as const;
 
 export type LoadingListStatus = (typeof LoadingListStatus)[keyof typeof LoadingListStatus];
+
+/**
+ * SQL table `loading_lists` is the Loading Program / BP.
+ * Per-truck packing list is `trucks.packing_list_number` + `bags`.
+ */
+export const PreAlertStatus = {
+  Draft: 'draft',
+  Active: 'active',
+  Paused: 'paused',
+  Closed: 'closed',
+  Cancelled: 'cancelled',
+} as const;
+
+export type PreAlertStatus = (typeof PreAlertStatus)[keyof typeof PreAlertStatus];
+
+/** Yard confirm/cancel is only allowed while the Loading Order is active. */
+export function isPreAlertYardMutable(status: string | null | undefined): boolean {
+  return status === PreAlertStatus.Active;
+}
+
+/** Physical arrival lifecycle — independent of floor TruckStatus. */
+export const ArrivalStatus = {
+  Expected: 'expected',
+  Arrived: 'arrived',
+  Cancelled: 'cancelled',
+  DidNotArrive: 'did_not_arrive',
+} as const;
+
+export type ArrivalStatus = (typeof ArrivalStatus)[keyof typeof ArrivalStatus];
+
+/** Provenance of a trip field. Yard-sourced values are never silently overwritten. */
+export const FieldSource = {
+  PreAlert: 'pre_alert',
+  Yard: 'yard',
+  Bp: 'bp',
+  PackingList: 'packing_list',
+  Manual: 'manual',
+} as const;
+
+export type FieldSource = (typeof FieldSource)[keyof typeof FieldSource];
+
+export type FieldSources = Partial<Record<string, FieldSource>>;
+
+export function isYardProtectedSource(source: FieldSource | string | undefined): boolean {
+  return source === FieldSource.Yard;
+}
+
+/** Trip fields that BP may conflict with yard-confirmed values. */
+export const BP_CONFLICT_FIELDS = [
+  'trailer_registration',
+  'trailer_registration_2',
+  'container_number',
+  'driver_name',
+  'driver_passport_reference',
+  'transporter_name',
+  'border',
+  'client_name',
+] as const;
+
+export type BpConflictField = (typeof BP_CONFLICT_FIELDS)[number];
+
+export type BpFieldResolution = 'keep_current' | 'apply_incoming';
+
+export function tripFieldValuesDiffer(
+  field: string,
+  current: string | null | undefined,
+  incoming: string | null | undefined,
+): boolean {
+  const left = current?.trim() || null;
+  const right = incoming?.trim() || null;
+  if (left == null && right == null) return false;
+  if (left == null || right == null) return true;
+  if (field.includes('registration')) {
+    return normalizeVehicleRegistration(left) !== normalizeVehicleRegistration(right);
+  }
+  return left !== right;
+}
+
+/**
+ * Yard-sourced values are never applied from BP unless management chooses apply_incoming.
+ * Non-yard differences apply the BP value (source becomes bp).
+ */
+export function resolveBpFieldUpdate(input: {
+  field: string;
+  current: string | null | undefined;
+  incoming: string | null | undefined;
+  currentSource?: FieldSource | string | null;
+  resolution?: BpFieldResolution | null;
+}): {
+  value: string | null;
+  source: FieldSource | string | null | undefined;
+  conflict: boolean;
+  applied: boolean;
+} {
+  const current = input.current?.trim() || null;
+  const incoming = input.incoming?.trim() || null;
+  if (!tripFieldValuesDiffer(input.field, current, incoming)) {
+    return { value: current, source: input.currentSource, conflict: false, applied: false };
+  }
+
+  const yardProtected = isYardProtectedSource(input.currentSource ?? undefined);
+  if (yardProtected) {
+    if (input.resolution === 'apply_incoming') {
+      return { value: incoming, source: FieldSource.Bp, conflict: true, applied: true };
+    }
+    return { value: current, source: input.currentSource, conflict: true, applied: false };
+  }
+
+  return { value: incoming, source: FieldSource.Bp, conflict: false, applied: true };
+}
+
+/** Open trip that occupies a physical horse plate. */
+export function isOpenOperationalTrip(
+  arrivalStatus: ArrivalStatus,
+  truckStatus: TruckStatus,
+): boolean {
+  if (arrivalStatus !== ArrivalStatus.Expected && arrivalStatus !== ArrivalStatus.Arrived) {
+    return false;
+  }
+  return truckStatus !== TruckStatus.Completed && truckStatus !== TruckStatus.Cancelled;
+}
 
 const PRIMARY_TRANSITIONS: ReadonlyArray<{ from: TruckStatus; to: TruckStatus }> = [
   { from: TruckStatus.Waiting, to: TruckStatus.Available },
@@ -126,6 +248,11 @@ export function assertTruckStatusTransition(from: TruckStatus, to: TruckStatus):
   if (!canTransitionTruckStatus(from, to)) {
     throw new InvalidTruckStatusTransitionError(from, to);
   }
+}
+
+/** Plate matching for yard queue, program assignment, and packing-list attach. */
+export function normalizeVehicleRegistration(value: string): string {
+  return value.trim().toUpperCase();
 }
 
 /** Sum bag net weights (kg). Domain pure helper — UI must not invent totals. */

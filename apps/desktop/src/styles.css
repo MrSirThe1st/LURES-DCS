@@ -45,6 +45,367 @@ body,
   font-family: var(--lures-font-sans);
 }
 
+/*
+  Shared operational table system — dense desktop lists, not dashboard cards.
+  Loading Order navy (#002060) is company workbook chrome, not the product brand.
+*/
+.ops-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ops-control {
+  height: 30px;
+  border: 1px solid var(--lures-color-border);
+  background: var(--lures-color-background);
+  color: var(--lures-color-text-primary);
+  padding: 0 8px;
+  font-size: 12px;
+  border-radius: var(--lures-radius-sm);
+}
+.ops-search {
+  width: 16rem;
+  max-width: 100%;
+}
+.ops-toolbar-clear {
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--lures-color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+.ops-toolbar-clear:hover {
+  color: var(--lures-color-text-primary);
+}
+.ops-table-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lures-color-text-secondary);
+}
+.ops-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--lures-color-border);
+  background: var(--lures-color-surface);
+}
+.ops-table-wrap--viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.ops-table {
+  width: 100%;
+  min-width: 80rem;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.ops-table th,
+.ops-table td {
+  border-bottom: 1px solid var(--lures-color-border);
+  padding: 4px 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.ops-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--lures-color-background);
+  color: var(--lures-color-text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.ops-table tbody tr.ops-row {
+  cursor: pointer;
+}
+.ops-table tbody tr.ops-row:hover td {
+  background: var(--lures-color-background);
+}
+.ops-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ops-table .ops-id {
+  display: inline-block;
+  padding: 0 2px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.ops-table .ops-id-quiet {
+  font-variant-numeric: tabular-nums;
+}
+.ops-table .col-actions {
+  width: 2.5rem;
+  cursor: default;
+}
+.ops-table .ops-empty-row td {
+  padding: 16px 8px;
+  color: var(--lures-color-text-secondary);
+  white-space: normal;
+  cursor: default;
+}
+.ops-sort {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.ops-table-footer {
+  font-size: 12px;
+  color: var(--lures-color-text-secondary);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border: 1px solid var(--lures-color-border);
+  border-radius: 2px;
+  background: var(--lures-color-background);
+  color: var(--lures-color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.status-badge--success {
+  border-color: color-mix(in srgb, var(--lures-color-success) 35%, var(--lures-color-border));
+  background: color-mix(in srgb, var(--lures-color-success) 10%, #fff);
+  color: var(--lures-color-success);
+}
+.status-badge--warning {
+  border-color: color-mix(in srgb, var(--lures-color-warning) 40%, var(--lures-color-border));
+  background: color-mix(in srgb, var(--lures-color-warning) 10%, #fff);
+  color: var(--lures-color-warning);
+}
+.status-badge--danger {
+  border-color: color-mix(in srgb, var(--lures-color-destructive) 35%, var(--lures-color-border));
+  background: color-mix(in srgb, var(--lures-color-destructive) 8%, #fff);
+  color: var(--lures-color-destructive);
+}
+
+.loading-order-header {
+  border: 1px solid var(--lures-color-border);
+  background: var(--lures-color-surface);
+}
+.loading-order-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--lures-color-border);
+}
+.loading-order-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--lures-color-text-primary);
+}
+.loading-order-kicker {
+  font-size: 12px;
+  color: var(--lures-color-text-secondary);
+}
+.loading-order-header-body {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  gap: 8px 32px;
+  align-items: start;
+  padding: 8px 12px;
+}
+.loading-order-points {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+.loading-order-points dt {
+  color: var(--lures-color-text-secondary);
+}
+.loading-order-points dd {
+  margin: 0;
+  font-weight: 500;
+  color: var(--lures-color-text-primary);
+}
+.loading-order-stats {
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.loading-order-stats th,
+.loading-order-stats td {
+  padding: 2px 10px;
+}
+.loading-order-stats thead th {
+  font-weight: 500;
+  color: var(--lures-color-text-secondary);
+  text-align: right;
+}
+.loading-order-stats tbody th {
+  font-weight: 500;
+  color: var(--lures-color-text-secondary);
+  text-align: left;
+}
+.loading-order-stats tbody td {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--lures-color-text-primary);
+}
+.loading-order-source {
+  margin: 0;
+  padding: 6px 12px;
+  border-top: 1px solid var(--lures-color-border);
+  font-size: 12px;
+  color: var(--lures-color-text-secondary);
+}
+
+.loading-order-sheet th,
+.loading-order-sheet td {
+  padding: 4px 8px;
+}
+.loading-order-sheet thead th {
+  background: #002060;
+  color: #fff;
+}
+.loading-order-sheet tbody tr.ops-row:hover td {
+  background: var(--lures-color-background);
+}
+.loading-order-sheet .sticky-sn,
+.loading-order-sheet .sticky-truck {
+  position: sticky;
+  z-index: 2;
+  background: var(--lures-color-surface);
+}
+.loading-order-sheet thead .sticky-sn,
+.loading-order-sheet thead .sticky-truck {
+  z-index: 4;
+  background: #002060;
+}
+.loading-order-sheet tbody tr.ops-row:hover .sticky-sn,
+.loading-order-sheet tbody tr.ops-row:hover .sticky-truck {
+  background: var(--lures-color-background);
+}
+.loading-order-sheet .sticky-sn {
+  left: 0;
+  width: 2.75rem;
+  min-width: 2.75rem;
+}
+.loading-order-sheet .sticky-truck {
+  left: 2.75rem;
+  min-width: 7.25rem;
+  box-shadow: 6px 0 6px -6px rgb(0 0 0 / 22%);
+}
+.loading-order-table .col-sn {
+  width: 2.75rem;
+}
+.loading-order-table .col-transporter {
+  width: 7.5rem;
+}
+.loading-order-table .col-truck {
+  width: 7.5rem;
+}
+.loading-order-table .col-trailer {
+  width: 7rem;
+}
+.loading-order-table .col-driver {
+  width: 11rem;
+}
+.loading-order-table .col-passport {
+  width: 7rem;
+}
+.loading-order-table .col-tonnage {
+  width: 4.5rem;
+}
+.loading-order-table .col-border {
+  width: 8rem;
+}
+.loading-order-table .col-destination {
+  width: 9rem;
+}
+.loading-order-table .col-eta {
+  width: 7rem;
+}
+.loading-order-table .col-arrival {
+  width: 6.5rem;
+}
+.ops-table .col-check {
+  width: 2rem;
+  text-align: center;
+}
+.ops-action {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--lures-color-border);
+  background: var(--lures-color-surface);
+  color: var(--lures-color-text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+.ops-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.ops-eta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ops-eta-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  height: 12px;
+  border: 1px solid color-mix(in srgb, var(--lures-color-warning) 45%, var(--lures-color-border));
+  color: var(--lures-color-warning);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+.eta-review {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eta-review-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.eta-review .ops-table-wrap {
+  max-height: 16rem;
+}
+.eta-review-table {
+  min-width: 56rem;
+}
+.eta-review-table td,
+.eta-review-table th {
+  white-space: nowrap;
+}
+.eta-review-actions {
+  display: flex;
+  gap: 4px;
+}
+.eta-review-decision {
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--lures-color-text-secondary);
+  font-size: 11px;
+}
+
 *:focus-visible {
   outline: 2px solid var(--lures-color-focus);
   outline-offset: 2px;

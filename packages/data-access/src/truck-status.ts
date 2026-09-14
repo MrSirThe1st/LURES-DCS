@@ -32,10 +32,33 @@ export async function transitionTruckStatus(input: TransitionTruckStatusInput): 
     throw new Error(`A reason is required when setting status to ${to}.`);
   }
 
+  if (to === TruckStatus.Available) {
+    const { count, error: bagCountError } = await client
+      .from('bags')
+      .select('id', { count: 'exact', head: true })
+      .eq('truck_id', truckId);
+    if (bagCountError) throw bagCountError;
+    if (!count) {
+      throw new Error('Upload the packing list before marking this truck Available.');
+    }
+  }
+
   const patch: Database['public']['Tables']['trucks']['Update'] = {
     status: to,
     completed_at: to === TruckStatus.Completed ? new Date().toISOString() : null,
   };
+
+  if (to === TruckStatus.Loading) {
+    const { data: current, error: currentError } = await client
+      .from('trucks')
+      .select('loading_started_at')
+      .eq('id', truckId)
+      .maybeSingle();
+    if (currentError) throw currentError;
+    if (!current?.loading_started_at) {
+      patch.loading_started_at = new Date().toISOString();
+    }
+  }
 
   const { data: updated, error: updateError } = await client
     .from('trucks')

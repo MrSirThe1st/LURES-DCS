@@ -72,5 +72,6 @@ export const importResultSchema = z.object({
   trucks_created: z.number().int().nonnegative(),
   bags_created: z.number().int().nonnegative(),
   trucks_removed: z.number().int().nonnegative().optional(),
+  trucks_attached: z.number().int().nonnegative().optional(),
 });
 export type ImportResult = z.infer<typeof importResultSchema>;

@@ -10,7 +10,7 @@ import { importLoadingListBundle } from '@lures-dcs/data-access';
 import { Button } from '@lures-dcs/ui';
 import { useAuth } from '../lib/auth';
 import { formatWeightKg, todayDateIso } from '../lib/format';
-import { readSpreadsheetMatrix } from '../lib/spreadsheet';
+import { readPackingListSheets } from '../lib/spreadsheet';
 import { getSupabaseClient } from '../lib/supabase';
 import { OverlayCloseButton } from './OverlayCloseButton';
 
@@ -25,7 +25,6 @@ export function ImportModal({ open, onClose, onImported }: ImportModalProps) {
   const { profile } = useAuth();
   const [loadingDate, setLoadingDate] = useState(todayDateIso());
   const [mode, setMode] = useState<ImportMode>('append');
-  const [bulletinReference, setBulletinReference] = useState('');
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -35,7 +34,6 @@ export function ImportModal({ open, onClose, onImported }: ImportModalProps) {
   function resetAndClose() {
     if (busy) return;
     setMode('append');
-    setBulletinReference('');
     setFileNames([]);
     setPreview(null);
     setParseError(null);
@@ -58,14 +56,23 @@ export function ImportModal({ open, onClose, onImported }: ImportModalProps) {
     try {
       const drafts = [];
       for (const file of files) {
-        const matrix = await readSpreadsheetMatrix(file);
-        const draft = parseListeDeColisageMatrix(matrix, file.name);
-        if (!draft) {
+        const sheets = await readPackingListSheets(file);
+        if (sheets.length === 0) {
           throw new Error(
-            `Could not parse ${file.name} as a liste de colisage. Use the sample template format.`,
+            `Could not parse ${file.name} as a liste de colisage. Use a packing-list sheet (装) or the sample template.`,
           );
         }
-        drafts.push(draft);
+        for (const sheet of sheets) {
+          const sourceName =
+            sheets.length === 1 ? file.name : `${file.name} (${sheet.name})`;
+          const draft = parseListeDeColisageMatrix(sheet.matrix, sourceName);
+          if (!draft) {
+            throw new Error(
+              `Could not parse ${sourceName} as a liste de colisage. Use a packing-list sheet (装) or the sample template.`,
+            );
+          }
+          drafts.push(draft);
+        }
       }
       setPreview(buildImportPreview({ drafts, loadingDate }));
     } catch (err) {
@@ -92,11 +99,9 @@ export function ImportModal({ open, onClose, onImported }: ImportModalProps) {
         preview: toImport,
         mode,
         actor: { id: profile.id, display_name: profile.display_name },
-        bulletinReference: bulletinReference.trim() || null,
       });
       onImported(result);
       setMode('append');
-      setBulletinReference('');
       setFileNames([]);
       setPreview(null);
       setParseError(null);
@@ -140,35 +145,23 @@ export function ImportModal({ open, onClose, onImported }: ImportModalProps) {
               Import packing list
             </h2>
             <p className="text-sm text-text-secondary">
-              Select one or more liste de colisage files (.xlsx / .csv). Each file is one truck with
-              bags.
+              Select one or more liste de colisage files (.xlsx / .csv). A company workbook can
+              include one 装 sheet per truck; a CSV is still one truck.
             </p>
           </div>
           <OverlayCloseButton onClick={resetAndClose} disabled={busy} />
         </div>
 
         <div className="flex flex-col gap-space-md p-space-md">
-          <div className="grid gap-space-md md:grid-cols-2">
-            <label className="flex flex-col gap-space-xs text-sm text-text-secondary">
-              Loading date
-              <input
-                type="date"
-                value={loadingDate}
-                onChange={(e) => setLoadingDate(e.target.value)}
-                className="border border-border bg-background px-space-sm py-space-xs text-base text-text-primary"
-              />
-            </label>
-            <label className="flex flex-col gap-space-xs text-sm text-text-secondary">
-              Bulletin reference (optional)
-              <input
-                type="text"
-                value={bulletinReference}
-                onChange={(e) => setBulletinReference(e.target.value)}
-                placeholder="e.g. LU-EX Conc.-2026-9-4-044"
-                className="border border-border bg-background px-space-sm py-space-xs text-base text-text-primary"
-              />
-            </label>
-          </div>
+          <label className="flex max-w-xs flex-col gap-space-xs text-sm text-text-secondary">
+            Loading date
+            <input
+              type="date"
+              value={loadingDate}
+              onChange={(e) => setLoadingDate(e.target.value)}
+              className="border border-border bg-background px-space-sm py-space-xs text-base text-text-primary"
+            />
+          </label>
 
           <label className="flex flex-col gap-space-xs text-sm text-text-secondary">
             Liste de colisage files

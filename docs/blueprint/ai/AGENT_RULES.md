@@ -8,13 +8,13 @@ Concise operating manual for AI coding agents on this repository.
 
 | Surface | Users | Purpose |
 |---------|-------|---------|
-| Management desktop app (`apps/desktop`) | Management | Daily loading management, import/schedule, monitor trucks/bags, audit, export/print |
-| Mobile loading app (`apps/mobile`) | Loading / operational staff | Find today’s trucks, verify bags, record authorized changes, complete trucks |
+| Management desktop app (`apps/desktop`) | Management | Pre-alerts, yard (expected/arrived), assign to program date, import packing lists, monitor trucks/bags, audit, export/print |
+| Mobile app (`apps/mobile`) | Loading staff and yard agent | Floor: today’s trucks, bag verify, complete. Yard: confirm expected arrivals, register unplanned, view FIFO queue |
 
 **Market:** DRC only.  
 **Languages:** Mandarin, English, and French (all required). Default UI language: French (`fr`) — see [ADR-002](../decisions/ADR-002.md).
 
-**Core entities (conceptual):** User, Organization, Loading List, Truck, Bag, Driver, Transporter, Loading Operation, Audit Event, Attachment/Document.
+**Core entities (conceptual):** User, External person, Vehicle, Pre-alert / Loading Order, Loading Program / BP, Truck (trip), Bag, Driver, Transporter, Audit Event, Attachment/Document.
 
 Do **not** work outside this product scope. Do not invent entities, roles, workflows, or permissions that are not documented in `docs/` or `PROJECT_KNOWLEDGE.md`. Do not drop or ignore a required language when implementing user-facing copy. Follow [ADR-002](../decisions/ADR-002.md) for V1 permission, export, send, i18n, and deferral locks.
 
@@ -111,7 +111,7 @@ Do not create meaningless tests solely for coverage targets.
 
 Based on documented purpose, roles, surfaces, and entities:
 
-1. Auth for Management and Loading staff
+1. Auth for Management, Loading staff, and Yard agent
 2. Daily loading list / truck / bag operational records (shared source of truth)
 3. Desktop loading management + truck/bag review + audit visibility
 4. Mobile today’s trucks + bag verification + authorized modifications + completion

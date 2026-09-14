@@ -7,15 +7,25 @@ import {
   requiresTruckStatusChangeReason,
   type TruckStatus,
 } from '@lures-dcs/domain';
-import { transitionTruckStatus } from '@lures-dcs/data-access';
+import { transitionTruckStatus, returnTrucksToYard } from '@lures-dcs/data-access';
 import { Button } from '@lures-dcs/ui';
+import { BulletinImportModal } from '../components/BulletinImportModal';
 import { LoadProgressCell } from '../components/LoadProgressCell';
 import { OverlayCloseButton } from '../components/OverlayCloseButton';
 import { useAuth } from '../lib/auth';
+import { runBulletinExcelExport } from '../lib/export-bulletin';
 import { formatDisplayDate, formatWeightKg, todayDateIso, truckStatusLabel } from '../lib/format';
 import { useOperationalRealtime } from '../lib/realtime';
 import { useLocale } from '../lib/locale';
 import { getSupabaseClient } from '../lib/supabase';
+
+type ProgramListRow = {
+  id: string;
+  bulletin_number: string | null;
+  program_code: string | null;
+  cargo_description: string | null;
+  status: string;
+};
 
 type TruckListItem = {
   id: string;
@@ -25,6 +35,8 @@ type TruckListItem = {
   transporter_name: string | null;
   status: TruckStatus;
   packing_list_number: string | null;
+  program_sequence: number | null;
+  unplanned: boolean;
   bags: Array<{ id: string; net_weight_kg: number; verification_status: string }>;
 };
 
@@ -70,7 +82,12 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
   const [actionsEntered, setActionsEntered] = useState(false);
   const [panelTrucks, setPanelTrucks] = useState<TruckListItem[]>([]);
   const [infoTruckId, setInfoTruckId] = useState<string | null>(null);
-  const dateIso = todayDateIso();
+  const [dateIso, setDateIso] = useState(todayDateIso);
+  const [programLists, setProgramLists] = useState<ProgramListRow[]>([]);
+  const [bpImportOpen, setBpImportOpen] = useState(false);
+  const [bpNotice, setBpNotice] = useState<string | null>(null);
+  const [bpError, setBpError] = useState<string | null>(null);
+  const [bpExportBusy, setBpExportBusy] = useState(false);
 
   useEffect(() => {
     onSelectionChange?.([...selectedIds]);
@@ -83,18 +100,22 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
 
     const { data: lists, error: listError } = await supabase
       .from('loading_lists')
-      .select('id, packing_list_number, cargo_description, status')
+      .select('id, bulletin_number, program_code, cargo_description, status')
       .eq('loading_date', dateIso)
       .order('created_at', { ascending: true });
 
     if (listError) {
       setError(listError.message);
+      setProgramLists([]);
       setTrucks([]);
       setLoading(false);
       return;
     }
 
-    if (!lists || lists.length === 0) {
+    const typedLists = (lists ?? []) as ProgramListRow[];
+    setProgramLists(typedLists);
+
+    if (typedLists.length === 0) {
       setListLabel(null);
       setTrucks([]);
       setSelectedIds(new Set());
@@ -103,19 +124,23 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
       return;
     }
 
-    const listIds = lists.map((list) => list.id);
+    const listIds = typedLists.map((list) => list.id);
     setListLabel(
-      lists
-        .map((list) => list.packing_list_number ?? list.cargo_description ?? 'Loading list')
+      typedLists
+        .map(
+          (list) =>
+            list.program_code ?? list.bulletin_number ?? list.cargo_description ?? 'Loading Program',
+        )
         .join(', '),
     );
 
     const { data: truckData, error: truckError } = await supabase
       .from('trucks')
       .select(
-        'id, vehicle_registration, trailer_registration, driver_name, transporter_name, status, packing_list_number, bags(id, net_weight_kg, verification_status)',
+        'id, vehicle_registration, trailer_registration, driver_name, transporter_name, status, packing_list_number, program_sequence, unplanned, bags(id, net_weight_kg, verification_status)',
       )
       .in('loading_list_id', listIds)
+      .order('program_sequence', { ascending: true, nullsFirst: false })
       .order('vehicle_registration', { ascending: true });
 
     if (truckError) {
@@ -125,7 +150,12 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
       return;
     }
 
-    const nextTrucks = (truckData ?? []) as TruckListItem[];
+    const nextTrucks = [...((truckData ?? []) as TruckListItem[])].sort((a, b) => {
+      const seqA = a.program_sequence ?? Number.POSITIVE_INFINITY;
+      const seqB = b.program_sequence ?? Number.POSITIVE_INFINITY;
+      if (seqA !== seqB) return seqA - seqB;
+      return a.vehicle_registration.localeCompare(b.vehicle_registration);
+    });
     setTrucks(nextTrucks);
     setSelectedIds((prev) => {
       const valid = new Set(nextTrucks.map((t) => t.id));
@@ -301,11 +331,77 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
     }
   }
 
+  async function applyReturnToYard() {
+    if (!profile || selectedTrucks.length === 0) return;
+    setStatusBusy(true);
+    setStatusError(null);
+    setStatusNotice(null);
+    try {
+      const result = await returnTrucksToYard({
+        client: getSupabaseClient(),
+        actor: profile,
+        payload: { truck_ids: selectedTrucks.map((truck) => truck.id) },
+      });
+      setSelectedIds(new Set());
+      setStatusNotice(t('loading.returnedToYard', { count: result.returned }));
+      await load('silent');
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : t('common.error'));
+    } finally {
+      setStatusBusy(false);
+    }
+  }
+
+  async function exportBulletinFiles() {
+    const bpLists = programLists.filter((list) => list.bulletin_number);
+    if (bpLists.length === 0) {
+      setBpError(t('bp.exportNone'));
+      setBpNotice(null);
+      return;
+    }
+    setBpExportBusy(true);
+    setBpError(null);
+    setBpNotice(null);
+    try {
+      for (const [index, list] of bpLists.entries()) {
+        if (index > 0) await new Promise((resolve) => window.setTimeout(resolve, 400));
+        await runBulletinExcelExport(list.id);
+      }
+      setBpNotice(t('bp.exported', { count: bpLists.length }));
+    } catch (err) {
+      setBpError(err instanceof Error ? err.message : t('bp.exportFailed'));
+    } finally {
+      setBpExportBusy(false);
+    }
+  }
+
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-space-lg p-space-lg">
+      <BulletinImportModal
+        open={bpImportOpen}
+        onClose={() => setBpImportOpen(false)}
+        onImported={(result) => {
+          setBpNotice(
+            t('bp.imported', { attached: result.trucks_attached, created: result.trucks_created }),
+          );
+          setBpError(null);
+          void load('silent');
+        }}
+      />
       <header className="flex flex-wrap items-start justify-between gap-space-md border-b border-border pb-space-md">
         <div className="flex flex-col gap-space-xs">
-          <h1 className="text-2xl font-semibold text-text-primary">Today’s loading</h1>
+          <h1 className="text-2xl font-semibold text-text-primary">{t('loading.today')}</h1>
+          <label className="flex flex-col gap-space-xs text-sm text-text-secondary">
+            {t('loading.date')}
+            <input
+              type="date"
+              value={dateIso}
+              onChange={(e) => {
+                if (e.target.value) setDateIso(e.target.value);
+              }}
+              className="border border-border bg-background px-space-md py-space-sm text-base text-text-primary"
+            />
+          </label>
           <p className="text-base text-text-secondary">{formatDisplayDate(dateIso)}</p>
           {listLabel ? <p className="text-sm text-text-secondary">{listLabel}</p> : null}
           <p className="text-sm text-text-secondary">
@@ -314,9 +410,22 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
             {profile?.display_name ? ` · ${profile.display_name}` : null}
           </p>
         </div>
-        <Button type="button" variant="secondary" onClick={() => void load('initial')}>
-          Refresh
-        </Button>
+        <div className="flex flex-wrap gap-space-sm">
+          <Button type="button" onClick={() => setBpImportOpen(true)}>
+            {t('bp.import')}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={bpExportBusy}
+            onClick={() => void exportBulletinFiles()}
+          >
+            {t('bp.export')}
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => void load('initial')}>
+            {t('common.refresh')}
+          </Button>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-space-md md:grid-cols-3 lg:grid-cols-6">
@@ -330,16 +439,15 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
 
       {loading ? <p className="text-base text-text-secondary">Loading trucks…</p> : null}
       {error ? <p className="text-base text-destructive">{error}</p> : null}
+      {bpNotice ? <p className="text-base text-success">{bpNotice}</p> : null}
+      {bpError ? <p className="text-base text-destructive">{bpError}</p> : null}
 
       {!loading && !error && trucks.length === 0 ? (
-        <p className="text-base text-text-secondary">
-          No trucks scheduled for today. Seed sample data with{' '}
-          <code className="font-mono text-sm">pnpm seed:today</code>.
-        </p>
+        <p className="text-base text-text-secondary">{t('loading.empty')}</p>
       ) : null}
 
       {actionsMounted ? (
-        <div className="pointer-events-none fixed inset-x-0 top-14 z-[15] overflow-hidden">
+        <div className="pointer-events-none fixed inset-x-0 top-14 z-15 overflow-hidden">
           <section
             data-status-actions-overlay
             className={[
@@ -396,6 +504,16 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                         </Button>
                       );
                     })}
+                    {overlayTrucks.every((truck) => truck.status === 'waiting') ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={statusBusy || !actionsOpen}
+                        onClick={() => void applyReturnToYard()}
+                      >
+                        {t('loading.returnToYard')}
+                      </Button>
+                    ) : null}
                   </div>
                 </>
               )}
@@ -426,6 +544,7 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                     aria-label="Select all trucks"
                   />
                 </th>
+                <th className="px-space-md py-space-sm font-medium">{t('bp.seq')}</th>
                 <th className="px-space-md py-space-sm font-medium">Truck</th>
                 <th className="px-space-md py-space-sm font-medium">Trailer</th>
                 <th className="px-space-md py-space-sm font-medium">Driver</th>
@@ -459,6 +578,9 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                         aria-label={`Select ${truck.vehicle_registration}`}
                       />
                     </td>
+                    <td className="px-space-md py-space-sm text-text-secondary">
+                      {truck.program_sequence ?? '—'}
+                    </td>
                     <td className="px-space-md py-space-sm">
                       <button
                         type="button"
@@ -467,6 +589,9 @@ export function TodayOverviewScreen({ onOpenTruck, onSelectionChange }: TodayOve
                       >
                         {truck.vehicle_registration}
                       </button>
+                      {truck.unplanned ? (
+                        <span className="ml-space-xs text-xs text-text-secondary">{t('bp.unplanned')}</span>
+                      ) : null}
                     </td>
                     <td className="px-space-md py-space-sm text-text-secondary">
                       {truck.trailer_registration ?? '—'}

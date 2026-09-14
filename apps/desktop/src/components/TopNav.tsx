@@ -5,13 +5,15 @@ import {
   IconExport,
   IconHistory,
   IconLoading,
+  IconPrealerts,
   IconReports,
   IconSend,
   IconSettings,
   IconUpload,
+  IconYard,
 } from './icons';
 
-export type AppPage = 'loading' | 'reports' | 'history' | 'settings';
+export type AppPage = 'prealerts' | 'yard' | 'loading' | 'reports' | 'history' | 'settings';
 
 type TopNavProps = {
   activePage: AppPage;
@@ -26,6 +28,8 @@ const NAV_ITEMS: Array<{
   labelKey: MessageKey;
   Icon: typeof IconLoading;
 }> = [
+  { id: 'prealerts', labelKey: 'nav.prealerts', Icon: IconPrealerts },
+  { id: 'yard', labelKey: 'nav.yard', Icon: IconYard },
   { id: 'loading', labelKey: 'nav.loading', Icon: IconLoading },
   { id: 'reports', labelKey: 'nav.reports', Icon: IconReports },
   { id: 'history', labelKey: 'nav.history', Icon: IconHistory },
@@ -47,7 +51,7 @@ export function TopNav({
         className="flex h-14 items-center justify-between gap-space-md px-space-md"
         aria-label={t('nav.main')}
       >
-        <div className="flex min-w-0 items-center gap-space-xs" role="list">
+        <div className="flex min-w-0 flex-1 items-center gap-space-xs overflow-x-auto" role="list">
           {NAV_ITEMS.map(({ id, labelKey, Icon }) => {
             const active = activePage === id;
             const label = t(labelKey);

@@ -4,12 +4,12 @@ import type { Database, Tables } from './database.types.js';
 
 export type HistoryLoadingList = Pick<
   Tables<'loading_lists'>,
-  'id' | 'loading_date' | 'packing_list_number' | 'cargo_description' | 'status'
+  'id' | 'loading_date' | 'bulletin_number' | 'program_code' | 'cargo_description' | 'status'
 >;
 
 export type HistoryTruckRow = {
   id: string;
-  loading_list_id: string;
+  loading_list_id: string | null;
   vehicle_registration: string;
   trailer_registration: string | null;
   driver_name: string | null;
@@ -88,7 +88,7 @@ export async function fetchHistoryDay(
 ): Promise<HistoryDaySnapshot> {
   const { data: lists, error: listError } = await client
     .from('loading_lists')
-    .select('id, loading_date, packing_list_number, cargo_description, status')
+    .select('id, loading_date, bulletin_number, program_code, cargo_description, status')
     .eq('loading_date', loadingDate)
     .order('created_at', { ascending: true });
 
@@ -193,6 +193,23 @@ export async function fetchAuditHistory(
 export const KNOWN_AUDIT_ACTIONS = [
   'imported',
   'import',
+  'packing_list_attached',
+  'yard_registered',
+  'unplanned_registered',
+  'prealert_imported',
+  'eta_reviewed',
+  'prealert_paused',
+  'prealert_resumed',
+  'prealert_deleted',
+  'prealert_closed',
+  'arrival_confirmed',
+  'yard_correction',
+  'expected_cancelled',
+  'bp_imported',
+  'bp_field_applied',
+  'bp_conflict_kept',
+  'programmed',
+  'returned_to_yard',
   'status_changed',
   'exported',
   'bag_verified',

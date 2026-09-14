@@ -21,6 +21,9 @@ type BagUpdateInput = {
 
 export async function saveBagVerification(input: BagUpdateInput): Promise<void> {
   const { bag, profile, netWeightKg, sealNumber, reason, markVerified } = input;
+  if (profile.role !== 'loading_staff') {
+    throw new Error('Not authorized to verify bags.');
+  }
   const supabase = getSupabaseClient();
 
   const { data: truck, error: truckLookupError } = await supabase
@@ -149,6 +152,9 @@ export async function saveBagVerification(input: BagUpdateInput): Promise<void> 
 }
 
 export async function completeTruck(truck: Truck, profile: Profile): Promise<void> {
+  if (profile.role !== 'loading_staff') {
+    throw new Error('Not authorized to complete trucks.');
+  }
   assertMobileTruckStatusTransition(truck.status, TruckStatus.Completed);
   await transitionTruckStatus({
     client: getSupabaseClient(),

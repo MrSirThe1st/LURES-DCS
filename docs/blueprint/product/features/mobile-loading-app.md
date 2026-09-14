@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Dedicated mobile application for loading-floor personnel to find today’s trucks, verify bags quickly, record authorized changes, and complete trucks against the shared operational database.
+Dedicated mobile application for two field roles on the same Expo app: loading-floor personnel verify bags and complete trucks; a yard agent registers trucks when they arrive.
 
 ## Design
 
@@ -13,13 +13,15 @@ Platform-native patterns; same product language as the desktop app, not a visual
 ## Users
 
 - Loading / operational staff
+- Yard agent (arrivals; same app, different login)
 
 ## Screens
 
 Implemented (V1 slice):
 
-- Login (loading staff only)
-- Today’s trucks
+- Login (loading staff or yard agent)
+- Today’s trucks (loading staff)
+- Yard queue + confirm expected arrival + register unplanned (yard agent)
 - Truck loading record + complete truck
 - Bag verification / modification with required reason on changes
 - i18n (zh / en / fr; default `fr`; Settings language switch; `profiles.preferred_locale`)
@@ -41,6 +43,7 @@ Known from product knowledge:
 - Controlled truck status transitions with audit (`available → loading` on first bag verify/edit; complete only from `loading`)
 - Real-time sync with the desktop management application through Supabase
 - Loading staff do **not** Hold / Cancel trucks in V1
+- Yard agents confirm expected Loading Order trucks (search horse → verify known details → confirm) while the order is **active**. A paused Loading Order is read-only in the yard. Unplanned register only when the plate is not on a pre-alert. They do **not** verify bags or assign program days.
 - QR/barcode truck open: future feature (not in current scope)
 
 ## Data

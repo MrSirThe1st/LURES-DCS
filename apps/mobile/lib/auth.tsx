@@ -108,11 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(message);
       throw new Error(message);
     }
-    if (nextProfile.role !== 'loading_staff') {
+    if (nextProfile.role !== 'loading_staff' && nextProfile.role !== 'yard_agent') {
       await supabase.auth.signOut();
       setSession(null);
       setProfile(null);
-      const message = 'This account is not authorized for the loading mobile app.';
+      const message = 'This account is not authorized for the mobile app.';
       setError(message);
       throw new Error(message);
     }

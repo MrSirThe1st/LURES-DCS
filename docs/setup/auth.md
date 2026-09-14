@@ -39,16 +39,18 @@ TODO: define screen groups and redirect rules per application
 Roles:
 
 - Management (`management`) — desktop
-- Loading / operational staff (`loading_staff`) — mobile
+- Loading / operational staff (`loading_staff`) — mobile floor
+- Yard agent (`yard_agent`) — mobile yard (confirm expected; register unplanned)
 
 Permission matrix: **locked** in [ADR-002](../blueprint/decisions/ADR-002.md) and [roles-and-flows.md](../blueprint/product/roles-and-flows.md).
 
 V1 highlights:
 
+- Confirm expected arrivals: yard agent on the phone (management may also confirm / register unplanned on desktop)
 - Hold / Cancel: management only
 - Export / Send / Reports / user admin: management only
 - Bag verify/edit + complete truck: loading staff
-- Locale: both roles may set `preferred_locale` (default `fr`)
+- Locale: all roles may set `preferred_locale` (default `fr`)
 
 Enforce with:
 

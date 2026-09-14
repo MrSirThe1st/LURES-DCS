@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tauri dev",
     "dev:ui": "vite",
+    "predev:ui": "pnpm --workspace-root exec turbo run build --filter=@lures-dcs/desktop^...",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
     "build:desktop": "tauri build",
     "preview": "vite preview",

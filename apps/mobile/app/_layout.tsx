@@ -23,6 +23,14 @@ function AuthGate({ children }: { children: ReactNode }) {
     }
     if (signedIn && onLogin) {
       router.replace('/');
+      return;
+    }
+    if (signedIn && profile?.role === 'yard_agent') {
+      const blocked = segments[0] === 'truck' || segments[0] === 'bag';
+      if (blocked) router.replace('/');
+    }
+    if (signedIn && profile?.role === 'loading_staff' && (segments[0] === 'yard-register' || segments[0] === 'yard-confirm')) {
+      router.replace('/');
     }
   }, [loading, session, profile, segments, router]);
 
@@ -57,6 +65,8 @@ function LocalizedStack() {
     >
       <Stack.Screen name="index" options={{ title: t('mobile.todayTitle') }} />
       <Stack.Screen name="login" options={{ title: t('common.signIn'), headerShown: false }} />
+      <Stack.Screen name="yard-register" options={{ title: t('yard.register') }} />
+      <Stack.Screen name="yard-confirm/[id]" options={{ title: t('yard.confirm') }} />
       <Stack.Screen name="truck/[id]" options={{ title: t('mobile.truckTitle') }} />
       <Stack.Screen name="bag/[id]" options={{ title: t('mobile.bagTitle') }} />
       <Stack.Screen name="settings" options={{ title: t('mobile.settingsTitle') }} />

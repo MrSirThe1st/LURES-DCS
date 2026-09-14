@@ -2,6 +2,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import * as XLSX from 'xlsx';
+import {
+  packingListSheetNames,
+  bulletinSheetCellValue,
+} from './bulletin-parse.js';
 import {
   buildImportPreview,
   parseListeDeColisageMatrix,
@@ -81,6 +86,10 @@ describe('parseLoadingDate', () => {
   it('parses company date like 3-Sep-26', () => {
     expect(parseLoadingDate('3-Sep-26')).toBe('2026-09-03');
   });
+
+  it('recovers 11-Sep-26 from a timezone-shifted Excel Date', () => {
+    expect(parseLoadingDate(new Date('2026-09-10T21:59:42.000Z'))).toBe('2026-09-11');
+  });
 });
 
 describe('parseListeDeColisageMatrix', () => {
@@ -136,6 +145,90 @@ describe('parseListeDeColisageMatrix', () => {
     });
     const total = draft!.bags.reduce((sum, bag) => sum + bag.net_weight_kg, 0);
     expect(total).toBe(30590);
+  });
+
+  it('reads LIEU DE CHARGEMENT when label and value share one cell', () => {
+    const draft = parseListeDeColisageMatrix(
+      [
+        ['DESCRIPTION:', 'CONCENTRÉ DE CUIVRE', 'N° DE LISTE DE COLISAGE :', 'EX202609-0506'],
+        ['DATE:', '11-Sep-26'],
+        ['CHEVAL:', 'T641EKD'],
+        ['CHARIOT-REMORQUE 1 :', 'T560EKD', 'CHARIOT-REMORQUE 2:', 'NA'],
+        ['LIEU DE CHARGEMENT : L’ USINE DE LUILU'],
+        ['NO.', 'BAG NO.', 'NET WEIGHT(KG)', 'SEAL NO.'],
+        ['1', 'LU-CC26090500301', 1333, 'DC15001'],
+      ],
+      'inline-lieu.xlsx',
+    );
+    expect(draft?.loading_location).toMatch(/USINE DE LUILU/i);
+    expect(draft?.vehicle_registration).toBe('T641EKD');
+    expect(draft?.loading_date).toBe('2026-09-11');
+  });
+
+  it('parses the original BP049 colisage xlsx 装 sheets', () => {
+    const fixturePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../../fixtures/import/bp049-lu-ex-colisage.xlsx',
+    );
+    const workbook = XLSX.read(readFileSync(fixturePath), { type: 'buffer', cellDates: true });
+    expect(workbook.SheetNames[0]).toBe('BP');
+    const names = packingListSheetNames(workbook.SheetNames);
+    expect(names).toHaveLength(26);
+    expect(names[0]).toBe('1装');
+    expect(names.some((name) => name.includes('发') || name.includes('放') || name === 'BP')).toBe(
+      false,
+    );
+
+    const drafts = names.map((name) => {
+      const sheet = workbook.Sheets[name]!;
+      const ref = sheet['!ref'];
+      if (!ref) return null;
+      const range = XLSX.utils.decode_range(ref);
+      const matrix: unknown[][] = [];
+      for (let r = range.s.r; r <= range.e.r; r += 1) {
+        const row: unknown[] = [];
+        let seen = false;
+        for (let c = range.s.c; c <= range.e.c; c += 1) {
+          const cell = sheet[XLSX.utils.encode_cell({ r, c })] as XLSX.CellObject | undefined;
+          const value = bulletinSheetCellValue(cell);
+          row.push(value);
+          if (value !== '' && value != null) seen = true;
+        }
+        if (seen) matrix.push(row);
+      }
+      return parseListeDeColisageMatrix(matrix, `bp049.xlsx (${name})`);
+    });
+
+    expect(drafts.every(Boolean)).toBe(true);
+    expect(drafts).toHaveLength(26);
+
+    const first = drafts[0]!;
+    expect(first.packing_list_number).toBe('EX202609-0506');
+    expect(first.vehicle_registration).toBe('T641EKD');
+    expect(first.trailer_registration).toBe('T560EKD');
+    expect(first.trailer_registration_2).toBeNull();
+    expect(first.driver_name).toBe('OMARY HAMISI');
+    expect(first.loading_date).toBe('2026-09-11');
+    expect(first.loading_location).toMatch(/USINE DE LUILU/i);
+    expect(first.transporter_name).toBe('VAN MO COMPANY LIMITED');
+    expect(first.bags).toHaveLength(22);
+    expect(first.bags[0]).toMatchObject({
+      bag_number: 'LU-CC26090500301',
+      net_weight_kg: 1333,
+      seal_number: 'DC15001',
+    });
+    expect(first.bags.reduce((sum, bag) => sum + bag.net_weight_kg, 0)).toBe(30653);
+
+    const dual = drafts.find((draft) => draft?.vehicle_registration === 'FWH557L');
+    expect(dual?.trailer_registration_2).toBe('FPC421L');
+    expect(dual?.packing_list_number).toBe('EX202609-0512');
+
+    const preview = buildImportPreview({
+      drafts: drafts.filter((draft): draft is NonNullable<typeof draft> => Boolean(draft)),
+      loadingDate: '2026-09-11',
+    });
+    expect(preview.has_errors).toBe(false);
+    expect(preview.trucks).toHaveLength(26);
   });
 });
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabaseClient } from './supabase';
 
-type RealtimeTable = 'trucks' | 'bags' | 'audit_events' | 'loading_lists';
+type RealtimeTable = 'trucks' | 'bags' | 'audit_events' | 'loading_lists' | 'pre_alerts' | 'pre_alert_lines';
 
 export type RealtimeSubscription = {
   table: RealtimeTable;

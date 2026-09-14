@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   TruckStatus,
+  ArrivalStatus,
+  FieldSource,
+  PreAlertStatus,
   calculateTruckTotalWeightKg,
   canMobileTransitionTruckStatus,
   canMobileWorkOnTruck,
@@ -8,10 +11,16 @@ import {
   getAllowedTruckStatusTransitions,
   getManagementTruckStatusActions,
   getTruckLoadIndicator,
+  normalizeVehicleRegistration,
   requiresTruckStatusChangeReason,
   assertMobileTruckStatusTransition,
   assertTruckStatusTransition,
   InvalidTruckStatusTransitionError,
+  isOpenOperationalTrip,
+  isYardProtectedSource,
+  isPreAlertYardMutable,
+  resolveBpFieldUpdate,
+  tripFieldValuesDiffer,
 } from './index.js';
 
 describe('canTransitionTruckStatus', () => {
@@ -155,5 +164,81 @@ describe('getTruckLoadIndicator', () => {
 describe('calculateTruckTotalWeightKg', () => {
   it('sums weights', () => {
     expect(calculateTruckTotalWeightKg([1, 2, 3])).toBe(6);
+  });
+});
+
+describe('normalizeVehicleRegistration', () => {
+  it('trims and uppercases plates', () => {
+    expect(normalizeVehicleRegistration('  t681erq ')).toBe('T681ERQ');
+  });
+});
+
+describe('isOpenOperationalTrip', () => {
+  it('occupies a plate while expected or arrived and not completed', () => {
+    expect(isOpenOperationalTrip(ArrivalStatus.Expected, TruckStatus.Waiting)).toBe(true);
+    expect(isOpenOperationalTrip(ArrivalStatus.Arrived, TruckStatus.Waiting)).toBe(true);
+    expect(isOpenOperationalTrip(ArrivalStatus.DidNotArrive, TruckStatus.Waiting)).toBe(false);
+    expect(isOpenOperationalTrip(ArrivalStatus.Cancelled, TruckStatus.Cancelled)).toBe(false);
+    expect(isOpenOperationalTrip(ArrivalStatus.Arrived, TruckStatus.Completed)).toBe(false);
+  });
+});
+
+describe('isPreAlertYardMutable', () => {
+  it('allows yard confirm only while the Loading Order is active', () => {
+    expect(isPreAlertYardMutable(PreAlertStatus.Active)).toBe(true);
+    expect(isPreAlertYardMutable(PreAlertStatus.Paused)).toBe(false);
+    expect(isPreAlertYardMutable(PreAlertStatus.Closed)).toBe(false);
+    expect(isPreAlertYardMutable(PreAlertStatus.Draft)).toBe(false);
+    expect(isPreAlertYardMutable(PreAlertStatus.Cancelled)).toBe(false);
+    expect(isPreAlertYardMutable(null)).toBe(false);
+  });
+});
+
+describe('isYardProtectedSource', () => {
+  it('protects yard-confirmed fields from silent overwrite', () => {
+    expect(isYardProtectedSource(FieldSource.Yard)).toBe(true);
+    expect(isYardProtectedSource(FieldSource.PreAlert)).toBe(false);
+    expect(isYardProtectedSource(FieldSource.Bp)).toBe(false);
+  });
+});
+
+describe('resolveBpFieldUpdate', () => {
+  it('keeps yard values when BP conflicts unless management applies BP', () => {
+    const conflict = resolveBpFieldUpdate({
+      field: 'driver_name',
+      current: 'OMARY HAMISI',
+      incoming: 'JOHN ANDREW',
+      currentSource: FieldSource.Yard,
+    });
+    expect(conflict.conflict).toBe(true);
+    expect(conflict.applied).toBe(false);
+    expect(conflict.value).toBe('OMARY HAMISI');
+
+    const applied = resolveBpFieldUpdate({
+      field: 'driver_name',
+      current: 'OMARY HAMISI',
+      incoming: 'JOHN ANDREW',
+      currentSource: FieldSource.Yard,
+      resolution: 'apply_incoming',
+    });
+    expect(applied.applied).toBe(true);
+    expect(applied.value).toBe('JOHN ANDREW');
+    expect(applied.source).toBe(FieldSource.Bp);
+  });
+
+  it('applies BP onto pre-alert values without treating it as a yard conflict', () => {
+    const result = resolveBpFieldUpdate({
+      field: 'transporter_name',
+      current: 'FORSH',
+      incoming: 'VAN MO COMPANY LIMITED',
+      currentSource: FieldSource.PreAlert,
+    });
+    expect(result.conflict).toBe(false);
+    expect(result.applied).toBe(true);
+    expect(result.value).toBe('VAN MO COMPANY LIMITED');
+  });
+
+  it('treats plate spelling as the same horse', () => {
+    expect(tripFieldValuesDiffer('trailer_registration', 't560ekd', 'T560EKD')).toBe(false);
   });
 });

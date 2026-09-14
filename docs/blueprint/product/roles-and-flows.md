@@ -4,26 +4,15 @@
 
 | Role | Access scope (V1 — locked in [ADR-002](../decisions/ADR-002.md)) |
 |------|------------------------------------------------------------------|
-| Management | Desktop: import/create lists; Available / Hold / Cancel; monitor; History; lean Reports; Export/print; Send (OS share/mail with PDF); manage users; own locale |
-| Loading / operational staff | Mobile: view today’s trucks; verify/edit bags with reason; complete truck; own locale. **No** Hold / Cancel; **no** import, export, reports, or user admin |
+| Management | Desktop: import Loading Orders; yard expected/arrived/did-not-arrive + assign to program date; import Loading Program / BP; import packing lists; Available / Hold / Cancel; monitor; History; lean Reports; Export/print; Send (OS share/mail with PDF); manage users; own locale. May register unplanned arrivals. |
+| Loading / operational staff | Mobile: view today’s trucks; verify/edit bags with reason; complete truck; own locale. **No** Hold / Cancel; **no** yard register, import, export, reports, or user admin |
+| Yard agent | Mobile: search/confirm expected trucks; register unplanned arrivals; view the arrived queue. **No** bag verify, Available, import, or program assign |
 
-Do not assume every user has all permissions. There is no separate view-only management role in V1.
+Do not assume every user has all permissions. There is no separate view-only management role in V1. Client checkers remain `external_persons` (no login) until a later decision.
 
 ### Permission matrix
 
-| Capability | Management | Loading staff |
-|------------|:----------:|:-------------:|
-| View today’s trucks / bags | Yes | Yes (Waiting read-only until Available) |
-| Import / create loading lists | Yes | No |
-| Mark Available / Hold / Cancel | Yes | No |
-| Verify / edit bags | Authorized office edits as UI allows | Yes |
-| Complete truck | No | Yes |
-| History / audit (desktop) | Yes | No (mobile shows truck-level events on its journey only) |
-| Reports | Yes | No |
-| Export / print | Yes | No |
-| Send (PDF via OS mail/share) | Yes | No |
-| Manage users | Yes | No |
-| Change own preferred locale | Yes | Yes |
+See [ADR-002](../decisions/ADR-002.md) for the full three-role table. Summary: management imports Loading Orders; yard agents confirm expected trucks (or register unplanned); management assigns program days and packing lists; loading staff verify bags and complete trucks.
 
 Authorization: server-side + RLS + trusted use-case checks. Never trust client-supplied role fields.
 
@@ -34,9 +23,15 @@ Authorization: server-side + RLS + trusted use-case checks. Never trust client-s
 ```
 Login
   ↓
-Daily loading overview
+Pre-alerts — import Loading Order (expected trucks)
   ↓
-Import/create daily loading schedule (Waiting)
+Yard — expected / arrived / did not arrive
+  ↓
+Assign arrived trucks to a program date (bridge if not yet on a BP)
+  ↓
+Daily loading overview — import / export Loading Program / BP
+  ↓
+Upload packing lists onto programmed plates
   ↓
 Mark trucks Available / Hold / Cancel
   ↓
@@ -56,13 +51,16 @@ Send PDF via OS mail/share (optional)
 ```
 
 1. Authenticate as Management
-2. Open today’s operational overview
-3. Import or create the daily loading list (trucks start Waiting)
-4. Mark trucks **Available** (or Hold / Cancel) — do not set Loading
-5. Monitor progress bars and statuses as the floor works
-6. Open a truck to review bags and audit events
-7. Use History for past days / full audit filters
-8. Export/print completed records; Send shares the PDF via the OS
+2. Import a client Loading Order on Pre-alerts (creates expected trips; labels stored as written)
+3. Yard: expected trucks wait for phone confirmation; arrived queue is FIFO by `arrived_at`
+4. Import a Loading Program / BP on Loading (match by horse plate), or assign arrived trucks to a program date (daily max is a UI cap; bridge for trucks not yet on a BP)
+5. Open that date on Loading
+6. Upload listes de colisage (attach bags to those plates)
+7. Mark trucks **Available** (or Hold / Cancel) — packing list required before Available
+8. Monitor progress bars and statuses as the floor works
+9. Open a truck to review bags and audit events
+10. Use History for past days / full audit filters
+11. Export/print completed records; Send shares the PDF via the OS
 
 ### Loading / operational staff (mobile)
 
@@ -91,6 +89,27 @@ Complete truck
 
 Hold / Cancel are **not** available on mobile in V1 (**Phase 4 closed as deferred** — ADR-002).
 
+### Yard agent (mobile)
+
+```
+Login
+  ↓
+Search expected horse (from Loading Order)
+  ↓
+Confirm arrival (edit only if yard sees a difference — provenance becomes yard)
+  ↓
+Arrived queue (FIFO) until management assigns a program date
+```
+
+Unplanned: register only when the plate is **not** on a pre-alert. Badge UNPLANNED / NOT ON PRE-ALERT.
+
+1. Authenticate as yard agent on the phone (same Expo app as loading staff)
+2. Search the expected horse; confirm known details — do not retype the Loading Order from scratch
+3. If the truck is not on a pre-alert, register it as unplanned
+4. See arrived trucks in the yard queue until management assigns a program date
+
+Yard agents do **not** verify bags, mark Available, or assign program days.
+
 ## Cross-cutting rules
 
 | Concern | Rule |
@@ -103,7 +122,8 @@ Hold / Cancel are **not** available on mobile in V1 (**Phase 4 closed as deferre
 | Error handling | Clear operational errors; no secret leakage |
 | Realtime | Desktop and mobile share one DB; updates visible without file exchange |
 | Offline | Important future consideration; not V1 requirement |
-| Import | Excel/CSV liste de colisage multi-file; Append or Replace; see import-format.md |
-| Bulletin de pesage | **Phase 8 closed as deferred** until stakeholders confirm (does not block V1 completion track) |
+| Import | Loading Order → expected trucks; Loading Program / BP onto arrived/expected plates (or unplanned); liste de colisage multi-file onto those plates; see import-format.md |
+| Loading Program / BP | Shipped. Never silently overwrite yard-confirmed fields with BP data; show conflict; management resolves (keep yard default); preserve `field_sources` in audit |
+| Labels | Preserve transporter/client/driver/location exactly as each source document wrote them. Match pre-alert ↔ BP by normalized horse plate, not transporter-name aliases |
 | Market | DRC only |
 | Languages | Mandarin, English, French; **default `fr`**; switch on Settings; persist `profiles.preferred_locale` |

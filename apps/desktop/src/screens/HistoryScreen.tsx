@@ -8,6 +8,7 @@ import {
   type HistoryDaySnapshot,
 } from '@lures-dcs/data-access';
 import { Button } from '@lures-dcs/ui';
+import { ActionMenu } from '../components/ActionMenu';
 import {
   formatDisplayDate,
   formatWeightKg,
@@ -109,7 +110,7 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
   const listLabel = useMemo(() => {
     if (!daySnapshot || daySnapshot.lists.length === 0) return null;
     return daySnapshot.lists
-      .map((list) => list.packing_list_number ?? list.cargo_description ?? 'Loading list')
+      .map((list) => list.program_code ?? list.bulletin_number ?? list.cargo_description ?? 'Loading Program')
       .join(', ');
   }, [daySnapshot]);
 
@@ -244,13 +245,12 @@ export function HistoryScreen({ onOpenTruck }: HistoryScreenProps) {
                         {formatWeightKg(truck.total_net_weight_kg)}
                       </td>
                       <td className="px-space-sm py-space-sm text-right">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => onOpenTruck(truck.id)}
-                        >
-                          Open
-                        </Button>
+                        <ActionMenu
+                          label={t('common.actions')}
+                          items={[
+                            { label: t('common.open'), onSelect: () => onOpenTruck(truck.id) },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}

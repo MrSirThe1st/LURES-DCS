@@ -8,6 +8,7 @@
  * Optional overrides in the shell / .env.local:
  *   BOOTSTRAP_MANAGEMENT_EMAIL / BOOTSTRAP_MANAGEMENT_PASSWORD / BOOTSTRAP_MANAGEMENT_NAME
  *   BOOTSTRAP_LOADING_EMAIL / BOOTSTRAP_LOADING_PASSWORD / BOOTSTRAP_LOADING_NAME
+ *   BOOTSTRAP_YARD_EMAIL / BOOTSTRAP_YARD_PASSWORD / BOOTSTRAP_YARD_NAME
  */
 
 import { createRequire } from 'node:module';
@@ -46,6 +47,12 @@ const users = [
     password: process.env.BOOTSTRAP_LOADING_PASSWORD ?? 'ChangeMe-Loading-1',
     displayName: process.env.BOOTSTRAP_LOADING_NAME ?? 'Loading Operator',
     role: 'loading_staff',
+  },
+  {
+    email: process.env.BOOTSTRAP_YARD_EMAIL ?? 'yard@lures.local',
+    password: process.env.BOOTSTRAP_YARD_PASSWORD ?? 'ChangeMe-Yard-1',
+    displayName: process.env.BOOTSTRAP_YARD_NAME ?? 'Yard Agent',
+    role: 'yard_agent',
   },
 ];
 

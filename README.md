@@ -11,7 +11,7 @@ Internal operational system for centralized truck loading and dispatch control.
 ## Applications
 
 - `apps/desktop` — dedicated **Tauri 2** management application (office staff)
-- `apps/mobile` — dedicated **Expo / React Native** loading-operations application
+- `apps/mobile` — dedicated **Expo / React Native** app: loading floor (`loading_staff`) and yard (`yard_agent`: confirm expected / register unplanned)
 - Supabase — PostgreSQL, Auth, Realtime, Storage (shared backend)
 - Shared TypeScript libraries under `packages/` — design-tokens, domain, api-contracts, data-access, ui, config, utils
 
@@ -41,11 +41,12 @@ Mobile:
 pnpm --filter @lures-dcs/mobile dev
 ```
 
-Mobile login (loading staff): `loading@lures.local` / `ChangeMe-Loading-1`
+Mobile login (loading staff): `loading@lures.local` / `ChangeMe-Loading-1`  
+Mobile login (yard agent): `yard@lures.local` / `ChangeMe-Yard-1`
 
 Local secrets live in root `.env.local` (gitignored). Never commit secrets.
 
-Bootstrap first Management / Loading users after schema setup:
+Bootstrap first Management / Loading / Yard users after schema setup:
 
 ```bash
 pnpm bootstrap:users

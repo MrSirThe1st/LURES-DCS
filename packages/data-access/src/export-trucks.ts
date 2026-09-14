@@ -52,7 +52,13 @@ export async function fetchTrucksForExport(
   if (!trucks || trucks.length === 0) return [];
 
   const truckIds = trucks.map((truck) => truck.id);
-  const listIds = [...new Set(trucks.map((truck) => truck.loading_list_id))];
+  const listIds = [
+    ...new Set(
+      trucks
+        .map((truck) => truck.loading_list_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
 
   const [bagsResult, listsResult] = await Promise.all([
     input.client
@@ -61,7 +67,9 @@ export async function fetchTrucksForExport(
       .in('truck_id', truckIds)
       .order('sort_order', { ascending: true })
       .order('bag_number', { ascending: true }),
-    input.client.from('loading_lists').select('id, loading_date').in('id', listIds),
+    listIds.length > 0
+      ? input.client.from('loading_lists').select('id, loading_date').in('id', listIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; loading_date: string }>, error: null }),
   ]);
 
   if (bagsResult.error) throw bagsResult.error;
@@ -105,7 +113,9 @@ export async function fetchTrucksForExport(
         agent: truck.agent,
         packing_list_number: truck.packing_list_number,
         cargo_description: truck.cargo_description,
-        loading_date: dateByList.get(truck.loading_list_id) ?? null,
+        loading_date: truck.loading_list_id
+          ? (dateByList.get(truck.loading_list_id) ?? null)
+          : null,
         total_net_weight_kg: calculateTruckTotalWeightKg(bags.map((bag) => bag.net_weight_kg)),
         bags,
       };

@@ -24,6 +24,14 @@ export function formatDisplayDate(isoDate: string): string {
   });
 }
 
+/** Calendar date only (Loading Order ETA). Never attach a clock — ISO dates are midnight UTC. */
+export function formatEtaDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  const iso = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!iso?.[1] || !iso[2] || !iso[3]) return String(value);
+  return `${iso[3]}-${iso[2]}-${iso[1]}`;
+}
+
 export function formatWeightKg(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) return '—';
   return `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3 })} kg`;

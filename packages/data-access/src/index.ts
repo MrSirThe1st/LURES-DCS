@@ -79,6 +79,44 @@ export {
 } from './export-trucks.js';
 
 export {
+  listYardQueue,
+  listExpectedTrucks,
+  listDidNotArriveTrucks,
+  getYardTruck,
+  registerYardArrival,
+  confirmExpectedArrival,
+  cancelExpectedTruck,
+  assignTrucksToLoadingDate,
+  returnTrucksToYard,
+  type YardActor,
+  type YardQueueTruck,
+} from './yard.js';
+
+export {
+  importLoadingOrder,
+  listPreAlerts,
+  listPreAlertTrucks,
+  listLoadingOrderRows,
+  patchPreAlertDocumentHeader,
+  pausePreAlert,
+  resumePreAlert,
+  deletePreAlert,
+  ensureVehicle,
+  type PreAlertActor,
+  type LoadingOrderRow,
+} from './pre-alerts.js';
+
+export {
+  importLoadingProgram,
+  analyzeBulletinImport,
+  fetchLoadingProgramForExport,
+  type LoadingProgramActor,
+  type BulletinImportAnalysis,
+  type BulletinMatchLine,
+  type BulletinFieldConflict,
+} from './loading-programs.js';
+
+export {
   listHistoryLoadingDates,
   fetchHistoryDay,
   fetchAuditHistory,

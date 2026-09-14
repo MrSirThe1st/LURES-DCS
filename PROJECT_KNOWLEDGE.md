@@ -2,7 +2,7 @@
 
 **Project code:** LURES-DCS  
 **Document status:** Source of truth for product vision, requirements, workflows, and architecture direction  
-**Last updated:** 3 September 2026  
+**Last updated:** 13 September 2026  
 
 > **Development rule:** Read this file before making architectural or product decisions. Do not invent business requirements. Do not silently change intended workflows. If a requirement is unclear or contradictory, ask before implementing. Prefer a simple, reliable implementation over unnecessary complexity.
 
@@ -166,7 +166,11 @@ View completed loading records
 Export/print final records
 ```
 
-Management should be able to **upload the daily truck loading list** rather than manually creating every truck and bag one by one.
+A **Loading Order / pre-alert** creates expected trucks. The **yard agent confirms** those arrivals on the phone (or registers an unplanned plate). Management then **imports a Loading Program / BP** (or assigns arrived trucks to a loading date as a bridge) and **uploads the packing list** onto those trucks.
+
+Labels (transporter, client, driver, locations) are stored **exactly as each source document wrote them**. Matching between pre-alert and BP uses normalized horse registration, not transporter-name aliases. Yard-confirmed fields are never silently overwritten by later BP data.
+
+Legacy packing-list import still creates a truck if that plate is not already open.
 
 Initial intended import format: **Excel/CSV** (exact format and mapping to be defined later from real company data).
 
@@ -539,30 +543,33 @@ Design around **structured operational entities**, not documents.
 ### Conceptual entities (preliminary — not final schema)
 
 - Users
-- Organizations / company
-- Loading Lists
-- Trucks
+- External persons (client representatives / checkers — no login role yet)
+- Vehicles (physical horse/trailer identity; distinct from a trip)
+- Pre-alerts / Loading Orders
+- Loading Programs / BP (`loading_lists`)
+- Trucks (operational trips)
 - Bags
 - Drivers
-- Transporters
-- Loading Operations
+- Transporters (source-document labels; do not normalize for matching)
 - Audit Events
 - Attachments / Documents
 
 ### Simplified conceptual relationship
 
 ```
-Loading List
+Pre-alert (Loading Order)
     |
-    +--- Truck
-          |
-          +--- Bag
-          +--- Bag
-          +--- Bag
-          +--- ...
-          |
-          +--- Loading Events
+    +--- expected Truck (trip)  --yard confirm--> arrived Truck
+                                              |
+Loading Program / BP (`loading_lists`) <------+  program_sequence
+                                              |
+                                              +--- Packing list (EXLOT + bags)
+                                              +--- Loading Events
 ```
+
+Physical `vehicles` are referenced by trips; trip rows keep the spelling from the source document.
+
+Three orders stay independent: arrival (`arrived_at`), BP (`program_sequence`), actual loading (`loading_started_at`).
 
 The final database schema must be designed carefully during implementation. **Do not assume this preliminary list is the final schema.**
 
@@ -570,15 +577,17 @@ The final database schema must be designed carefully during implementation. **Do
 
 ## 14. Loading lists
 
-A loading list represents a planned loading operation or group of trucks for a particular date/reference.
+`loading_lists` is the **Loading Program / BP** (bulletin), not a packing-list bundle. Per-truck packing list is `trucks.packing_list_number` + `bags`. Pre-alerts are a separate object (`pre_alerts`).
+
+There is not a product rule of one BP per day. Assign-to-loading-date remains a bridge for trucks not yet on a BP (`bulletin_number` null). BP Excel export reproduces the existing company BP layout.
 
 ### Conceptual fields
 
 - Date
-- Packing/list number
-- Cargo description
-- Planned trucks
-- Other shipment information
+- Bulletin number (`bulletin_number`, e.g. LU-EX Conc.-2026-9-11-049)
+- Informal program code (`program_code`, e.g. BP049)
+- Cargo description / client / destination / loading point
+- Planned trucks (`program_sequence` on each trip)
 - Status
 - Created by
 - Created timestamp
@@ -586,9 +595,9 @@ A loading list represents a planned loading operation or group of trucks for a p
 ### Example
 
 ```
-Packing List: EX202609-0376
-Date: 3-Sep-26
-Description: Concentrate de cuivre
+BP049 · LU-EX Conc.-2026-9-11-049
+Date: 11-Sep-26
+Description: LU-EX Conc.
 ```
 
 **Localization / market notes:**
@@ -600,16 +609,21 @@ Description: Concentrate de cuivre
 
 ## 15. Importing daily data
 
-One of the main management functions is importing daily truck/loading information as a **packing list bundle**.
+Three imports, three objects:
 
-**Preferred first approach:** structured Excel/CSV import of **listes de colisage** (one file per truck).
+1. **Loading Order / pre-alert** — expected trucks (Glencore `.xlsx`; desktop Pre-alerts)
+2. **Loading Program / BP** — `loading_lists`; never auto-overwrite yard-confirmed fields
+3. **Liste de colisage** — per-truck packing sheet onto an arrived/programmed plate
 
-### Paper documents
+**Do not** rewrite transporter/client/driver/location labels on import. Preserve source conventions.
 
-- **Bulletin de pesage** — daily summary of trucks in the packing list (bundle overview)
+### Paper / Excel documents
+
+- **Loading Order** — client pre-alert of expected trucks
+- **Bulletin de pesage / Loading Program / BP** — program of arrived (or to-be-loaded) trucks
 - **Liste de colisage** — per-truck sheet with header fields and bag rows (bag no, net weight kg, seal)
 
-A packing list is composed of several listes de colisage (not a single flat truck-only file).
+A packing list is one liste de colisage (one truck + bags), not a bulletin bundle.
 
 ### Import flow (implemented)
 
@@ -658,22 +672,26 @@ Internal company application with authenticated users.
 
 1. **Management**
 2. **Loading / operational staff**
+3. **Yard agent** (phone; confirm expected arrivals; register unplanned)
 
-The V1 role/permission matrix is **locked** in `docs/blueprint/decisions/ADR-002.md` (also mirrored in `docs/blueprint/product/roles-and-flows.md`).
+The V1 role/permission matrix is **locked** in `docs/blueprint/decisions/ADR-002.md` (also mirrored in `docs/blueprint/product/roles-and-flows.md`). Client checkers are `external_persons` until a later login decision.
 
 ### V1 permissions (summary)
 
-| Capability | Management | Loading staff |
-|------------|:----------:|:-------------:|
-| View loading schedules / today’s trucks | Yes | Yes (Waiting read-only) |
-| Create / import loading lists | Yes | No |
-| Edit truck / bag information (office) | As UI allows | Verify/edit bags with reason |
-| Change status Available / Hold / Cancel | Yes | No |
-| Complete truck | No | Yes |
-| View audit / History | Yes | Truck-level on mobile journey only |
-| Lean Reports | Yes | No |
-| Export / print / Send (OS PDF share) | Yes | No |
-| Manage users | Yes | No |
+| Capability | Management | Loading staff | Yard agent |
+|------------|:----------:|:-------------:|:----------:|
+| Import Loading Order | Yes | No | No |
+| Confirm expected arrivals | Yes (desktop) | No | Yes (phone) |
+| Register unplanned yard arrivals | Yes (desktop) | No | Yes (phone) |
+| View loading schedules / today’s trucks | Yes | Yes (Waiting read-only) | Arrived queue only |
+| Import packing lists | Yes | No | No |
+| Edit truck / bag information (office) | As UI allows | Verify/edit bags with reason | No |
+| Change status Available / Hold / Cancel | Yes | No | No |
+| Complete truck | No | Yes | No |
+| View audit / History | Yes | Truck-level on mobile journey only | No |
+| Lean Reports | Yes | No | No |
+| Export / print / Send (OS PDF share) | Yes | No | No |
+| Manage users | Yes | No | No |
 
 **Do not assume every user should have all permissions.** Revising this matrix requires an ADR change.
 
@@ -933,14 +951,14 @@ Phase 0 locks for the V1 completion track are recorded in **`docs/blueprint/deci
 
 | Topic | Decision |
 |-------|----------|
-| Role/permission matrix | Two roles; Hold/Cancel management-only; see ADR-002 table |
+| Role/permission matrix | Three roles (management, loading_staff, yard_agent); Hold/Cancel management-only; yard register is phone-only; see ADR-002 table |
 | Default UI language and switch | Default **French (`fr`)**; Settings switcher; `profiles.preferred_locale` |
 | Export / print | PDF from DB data; letterhead close to liste de colisage; Tauri print/save; audited |
 | Send | OS mail/share of PDF only — no WhatsApp/email automation; no `sent` status |
 | Reports | Lean operational summaries only |
 | History | Past lists/days + filterable audit |
 | Mobile hold/cancel | **Out** of V1 (management-only) |
-| Bulletin de pesage | **Phase 8 closed as deferred** until stakeholders confirm |
+| Bulletin de pesage / Loading Program / BP | **Shipped** (Excel import + company layout export). Never auto-overwrite yard-confirmed fields. |
 | QR / barcode | Out of current execution plan |
 | Offline mobile | Future; keep architecture open |
 | Brand tokens | Keep current tokens until palette/fonts approved |
@@ -967,8 +985,11 @@ Phase 0 locks for the V1 completion track are recorded in **`docs/blueprint/deci
 
 | Term | Meaning |
 |------|---------|
-| Loading list / packing list | Planned loading operation or group of trucks for a date/reference |
-| Truck record | Digital operational record for one vehicle load |
+| Pre-alert / Loading Order | Expected trucks from a client pre-alert |
+| Loading Program / BP | Bulletin (`loading_lists`); not a packing-list bundle |
+| Packing list / liste de colisage | Per-truck EXLOT + bags |
+| Vehicle | Physical horse/trailer identity (`vehicles`) |
+| Truck record | Operational trip for one vehicle load (`trucks`) |
 | Bag | Individual bag/unit on a truck with number, net weight, and seal |
 | Seal | Seal number associated with a bag |
 | Verification | Operator confirmation of bag data during physical loading |

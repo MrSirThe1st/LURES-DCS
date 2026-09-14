@@ -194,10 +194,8 @@ export function parseLoadingDate(value: unknown): string | null {
 }
 
 function toIsoDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const rounded = new Date(Math.round(date.getTime() / 86_400_000) * 86_400_000);
+  return rounded.toISOString().slice(0, 10);
 }
 
 function todayIso(date = new Date()): string {
@@ -228,23 +226,37 @@ function isFooterOrSectionRow(row: string[]): boolean {
   return false;
 }
 
+function splitInlineMeta(cell: string): { key: string; value: string } | null {
+  const match = cell.match(/^(.+?)\s*[:：]\s*(.*)$/);
+  if (!match?.[1]) return null;
+  const key = normalizeHeader(match[1]);
+  if (!META_KEYS.has(key)) return null;
+  return { key, value: (match[2] ?? '').trim() };
+}
+
 /**
  * Extract label/value pairs from a row (supports Luilu two-column layout:
  * CHEVAL: | T681ERQ | … | CHARIOT-REMORQUE 2: | NA).
+ * Also accepts a label and value in one cell (`LIEU DE CHARGEMENT : L’ USINE DE LUILU`).
  */
 function extractMetaPairs(row: string[]): Record<string, string> {
   const meta: Record<string, string> = {};
   for (let i = 0; i < row.length; i++) {
     const label = row[i] ?? '';
     if (!label.trim()) continue;
-    const key = normalizeHeader(label);
+    const inline = splitInlineMeta(label);
+    if (inline?.value && !META_KEYS.has(normalizeHeader(inline.value)) && !splitInlineMeta(inline.value)) {
+      meta[inline.key] = inline.value;
+      continue;
+    }
+    const key = inline?.key ?? normalizeHeader(label);
     if (!META_KEYS.has(key)) continue;
     let j = i + 1;
     while (j < row.length && !(row[j] ?? '').trim()) j += 1;
     const value = row[j] ?? '';
     if (!value.trim()) continue;
     // Do not treat the next label as a value
-    if (META_KEYS.has(normalizeHeader(value))) continue;
+    if (META_KEYS.has(normalizeHeader(value)) || splitInlineMeta(value)) continue;
     meta[key] = value.trim();
     i = j;
   }
